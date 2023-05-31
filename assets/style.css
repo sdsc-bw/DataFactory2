@@ -1,0 +1,342 @@
+.upload_data {
+    width: 98%;
+    height: 30rem;
+    line-height: 1rem;
+    border-width: 0.1rem;
+    border-style: dashed;
+    border-radius: 0.1rem;
+    text-align: center;
+    margin: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card_upload {
+    height: 32rem;
+    justify-content: center;
+    align-items: center;
+},
+
+.paragraph_loading {
+    display: inline-block;
+}
+
+.card_row {
+    margin: 0.4rem;
+}
+
+.upload_link {
+    color: #0074D9;
+    text-decoration: none;
+}
+
+.upload_link:hover {
+    color: #7FDBFF;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.card_graph {
+    height: 60rem;
+}
+
+.graph_figure {
+    background-color: #1f2c56;
+    padding: 0.3rem;
+    position: relative;
+    height: 40rem;
+}
+
+.card_header {
+    font-family: Times New Roman;
+    font-size: 20pt;
+}
+
+
+.card_header_fullscreen_and_close {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 1rem;
+    border: white;
+    height: 4rem;
+}
+
+.card_subheader {
+    font-family: Times New Roman;
+    font-size: 16pt;
+    border: white;
+    background-color:white;
+}
+
+.card_subcontainer {
+    border: white;
+    margin-bottom: 1rem;
+    height: 100%;
+}
+
+.btn_fullscreen {
+    display: block
+}
+
+.btn_close {
+    display: block
+}
+
+.col_fullscreen_and_close {
+    display: flex;
+    justify-content: space-between;
+    align-items: center
+}
+
+.card_container {
+    margin-bottom: 1rem;
+}
+
+.card_body_container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: stretch;
+    position: relative;
+    height: 100%;
+}
+
+.apply_button_container {
+    position: relative;
+    bottom: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    margin-left: 3rem;
+}
+
+.card_body_one_col {
+    padding: 2rem;
+    border: white;
+}
+
+.data_exploration_block {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.header_div {
+    background-color: #f9f9f9;
+    margin-bottom: 1rem;
+}
+
+.h3 {
+    font-family: Times New Roman;
+    color: #6c7182;
+    text-align: left;
+    font-size: 24pt;
+    margin: 1rem;
+}
+
+.header_graph{
+}
+
+.header_table{
+}
+
+.h3_div{
+    float: left;
+}
+
+.h4 {
+    font-family: Times New Roman; 
+    font-size: 14pt;
+}
+
+.h5 {
+    font-family: Times New Roman; 
+    font-size: 20pt;
+}
+
+.h6 {
+    font-family: Times New Roman; 
+    font-size: 14pt;
+}
+
+.graph_feature_distribution {
+    width: 30rem;
+    margin-top: -4.5rem;
+    margin-left: 1.5rem;
+}
+
+.graph_border {
+    border-radius: 1rem;
+    background-color: #1f2c56;
+    padding: 1rem;
+    position: relative;
+    box-shadow: 0.2rem 0.2rem 0.2rem #1f2c56;
+}
+
+.dropdown_offcanvas {
+    width: 30rem;
+    margin-bottom: 1rem;
+}
+
+.input_offcanvas {
+    width = 20rem;
+    margin-bottom: 1rem;
+}
+
+.dropdown_resampling {
+    margin-bottom: 1rem;
+}
+
+.input_resampling {
+    margin-bottom: 1rem;
+}
+
+.offcanvas_card, .offcanvas_card_optional {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+.alert {
+    display: none;
+    margin-top: 1rem;    
+}
+
+.btn_custom, .btn_custom:hover, .btn_custom:active, .btn_custom:focus  {
+    width: auto; 
+    margin-right: 1rem;
+    margin-left: 1rem;
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+    background-color: seagreen;
+    color: white;
+}
+
+.btn_apply, .btn_apply:hover, .btn_apply:active, .btn_apply:focus  {
+    width: 10rem; 
+    background-color: seagreen;
+    color: white;
+    margin-right: 1rem;
+}
+
+.btn_card, .btn_card:hover, .btn_card:active, .btn_card:focus  {
+    width: auto; 
+    margin-right: 1rem;
+    margin-left: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    background-color: seagreen;
+    color: white;
+}
+
+.btn_close{
+    width: 0.5rem;
+    border: transparent;
+}
+
+.paragraph_tooltip {
+    align-items:left
+}
+
+.h3_div:after,
+.h3_div{
+    margin-left: 0.2rem
+}
+
+.text_board_card{
+    color:grey;
+    background-color: #D3D3D3;
+}
+
+.text_board_font1{
+    color:black;
+    font-size: 18pt;
+}
+
+.text_board_font2{
+    color:black;
+    font-size: 12pt;
+}
+
+.dropdown_overview_multi_feature {
+    width: 100%;
+    display: inline-block;
+    font-size: 100%;
+}
+
+.dropdown_overview_multi_feature_full_width {
+    width: 100%;
+    display: inline-block;
+    
+    margin-top: 1rem;
+    font-size: 100%;
+}
+
+.dropdown_overview_single_feature {
+    width: 20rem;
+    margin-right: 1rem;
+}
+
+
+.dropdown_overview_single_feature_full_width {
+    margin-right: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.div_overview_single_feature {
+    display: flex;
+    margin-bottom: 1rem;
+}
+
+.row_overview_textboard {
+    margin-bottom: 2rem;
+}
+
+.row_overview_plots {
+    margin-bottom: 1rem;
+}
+
+.row_dropdown_and_button {
+    margin-right: 1rem; 
+    width: 99%;
+}
+    
+.figure_overview {
+    height: 49rem;
+}
+
+.btn_img {
+    height: 1.3rem;
+    width: 1.3rem;
+}
+
+.btn_delete {
+    height: 1rem;
+    width: 1rem;
+    margin-top:1rem;
+    margin-right: 1rem
+}
+
+.graph_categorical {
+    height: 55rem;
+}
+
+.container_horizontal_aligned{
+    display:flex;
+    justify-content: center;
+    align-items:center;
+}
+
+.dropdown_horizontal_aligned {
+    width: 20rem;
+}
+
+.paragraph_horizontal_aligned {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.btn_aligned_right {
+    display: flex;
+    justify-content: center;
+}
