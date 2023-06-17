@@ -228,8 +228,8 @@ def update_line_plot_after_imputing(n_clicks, col, method, simple_strategy, simp
     # update sidebar
     Output("button_outlier", "disabled"),
     Output("button_ts", "disabled"),
-    Output("button_sl", "disabled"),
-    Output("button_usl", "disabled"),
+    Output("button_sc", "disabled"),
+    Output("button_sr", "disabled"),
     # inputs
     Input("button_na_apply", "n_clicks"),
     State("dropdown_na_feature", "value"),
@@ -249,7 +249,6 @@ def update_line_plot_after_imputing(n_clicks, col, method, simple_strategy, simp
 def update_df_after_imputing(n_clicks, col, method, simple_strategy, simple_fill_value, iterative_max_iter, iterative_n_nearest_features, iterative_initial_strategy, iterative_fill_value, iterative_imputation_order, knn_n_neighbors, iterative_weights, manual_index, manual_fill_value):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
-    
     # read out parameter
     params = {}
     if method == IMPUTER_METHODS[0]: # simple imputer
@@ -311,4 +310,4 @@ def update_df_after_imputing(n_clicks, col, method, simple_strategy, simple_fill
     # update sidebar
     sidebar_disabled = nan_cols != []
     
-    return options, value, max_nearest_features, iterative_n_nearest_features, marks, figure_na, figure_na_heatmap, data_datatable_overview, columns_datatable_overview, sidebar_disabled, sidebar_disabled, sidebar_disabled
+    return options, value, max_nearest_features, iterative_n_nearest_features, marks, figure_na, figure_na_heatmap, data_datatable_overview, columns_datatable_overview, sidebar_disabled, sidebar_disabled, sidebar_disabled,  sidebar_disabled

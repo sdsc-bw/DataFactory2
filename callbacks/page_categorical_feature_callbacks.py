@@ -92,7 +92,7 @@ def update_df_after_encoding(n_clicks, col, strategy, in_str, out_str):
         table_data.DF_RAW = apply_encoding(table_data.DF_RAW, col, strategy, in_str, out_str)
     except ValueError:
         print("Column seems to contain unconvertable string.")
-        return [True] + 10 * [dash.no_update]
+        return [True] + 9 * [dash.no_update]
         
     
     df_cat = table_data.DF_RAW.select_dtypes(include='object').dropna(axis=1, how='all') 
