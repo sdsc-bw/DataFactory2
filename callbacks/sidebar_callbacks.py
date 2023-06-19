@@ -5,9 +5,6 @@ from dash import Input, Output, State, dcc, html, no_update
 # Import app
 from view.app import app
 
-# import data
-from data import table_data
-
 
 # this function is used to toggle the is_open property of each Collapse
 def toggle_collapse(n, is_open):
