@@ -411,11 +411,6 @@ def sidebar():
             ),
             
             html.Hr(style={'borderWidth': "0.3vh", "width": "100%", "borderColor": "black", "borderStyle":"solid"}),
-            html.P(
-                "Ihr innovativer Partner für Extrusionswerkzeuge", 
-                style={"font-family": "Times New Roman","font-size": "16pt","font-style":"italic"}
-            ),
-            html.Hr(style={'borderWidth': "0.3vh", "width": "100%", "borderColor": "black", "borderStyle":"solid"}),
             dbc.Nav(
                 submenu_1 + submenu_2 + submenu_3, 
                 vertical=True,

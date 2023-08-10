@@ -92,6 +92,16 @@ def toggle_modal(value, is_open):
     return not is_open
 
 @app.callback(
+    Output("dropdown_transformation_time_series_dataset", "value"),
+    Input("modal_transformation_time_series_add_dataset", "is_open"),
+)
+def close_modal(is_open):
+    if is_open:
+        return dash.no_update
+    
+    return list(table_data.ALL_DATASETS.keys())[-1]
+
+@app.callback(
     Output("button_transformation_time_series_save_dataset", "n_clicks"),
     Input("button_transformation_time_series_save_dataset", "n_clicks"), 
     State("dropdown_transformation_time_series_dataset", "value"),
@@ -483,7 +493,40 @@ def update_style_differencing(method, style):
         style['display'] = 'none'        
     return style
 
-  
+# update parameter
+@app.callback(
+    Output("slider_transformation_time_series_sgf_periods", "value"),
+    Input("slider_transformation_time_series_sgf_polyorder", "value"),
+    State("slider_transformation_time_series_sgf_periods", "value"),
+)
+def update_sgf_periods(polyorder, periods):
+    if polyorder is None or periods is None:
+        return dash.no_update
+    
+    # polyorder must be less than periods
+    if polyorder < periods:
+        return periods
+    else: 
+        if (polyorder + 1) % 2 == 1:
+            return polyorder + 1
+        else:
+            return polyorder + 2
+        
+# update parameter
+@app.callback(
+    Output("slider_transformation_time_series_sgf_polyorder", "value"),
+    State("slider_transformation_time_series_sgf_polyorder", "value"),
+    Input("slider_transformation_time_series_sgf_periods", "value"),
+)
+def update_sgf_polyorder(polyorder, periods):
+    if polyorder is None or periods is None:
+        return dash.no_update
+    
+    # polyorder must be less than periods
+    if polyorder < periods:
+        return polyorder
+    else: 
+        return periods - 1
 
 # update after selected dataset changes
 @app.callback(

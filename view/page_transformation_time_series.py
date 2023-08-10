@@ -797,7 +797,7 @@ def add_container_for_sfg_periods(id_container, id_slider):
         dbc.CardBody([
              dcc.Slider(
                  id=id_slider, 
-                 min=1,
+                 min=3,
                  max=21,
                  step=2,
                  value=1,
