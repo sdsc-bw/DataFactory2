@@ -6,7 +6,7 @@ from sklearn.dummy import DummyClassifier, DummyRegressor
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_score, TimeSeriesSplit
 
 
 CLASSFIER = ["Baseline", "KNN", "Random Forest", "Gradient Boosting"]
@@ -21,12 +21,17 @@ CLASSIFIER_KNN_WEIGHTS =  {'Uniform': 'uniform', 'Distance': 'distance'}
 CLASSIFIER_RF_CRITERION = {"Gini": "gini", "Entropy": "entropy", "Log Loss": "log_loss"}
 REGRESSOR_RF_CRITERION = {"Squared Error": "squared_error", "Absolute error": "absolute_error", "Friedman MSE": "friedman_mse", "Poisson": "poisson"}
 
-def apply_classifier(df, target, train_size, model, params):
-    X = df.copy(deep=True)
-    y = X.pop(target) 
+def apply_classifier(df, target, train_size, model, params, ts_cross_val=False):
+    # Extract the target values
+    y = df[target].values
+
+    # Extract the feature values (excluding the target column)
+    X = df.drop(columns=[target]).values
     
     # compute number of folds
     cv = int(1.0 / (1 - train_size))
+    if cv < 2:
+        cv = 2
     
     # initialize classifier
     if model == CLASSFIER[0]:
@@ -41,43 +46,79 @@ def apply_classifier(df, target, train_size, model, params):
         print(f"Unknown model: {model}")
         
     # evalutate classifier
-    scores = cross_val_score(clf, X, y, cv=cv, scoring='f1_macro')
+    if ts_cross_val:
+        scores = time_series_cross_val(X, y, cv, clf, scoring='f1_macro')
+    else: 
+        scores = cross_val(X, y, cv, clf, scoring='f1_macro')
+        
+    if scores.isna().any().any():
+        raise ValueError("Target contains contains continous values. Please check your target.")
     
-    folds = []
-    for i in range(len(scores)):
-        folds.append(f"Fold {i+1}")
-    df_scores = pd.DataFrame({'Fold': folds, 'Score': scores})
-    
-    return df_scores
+    return scores
 
-def apply_regressor(df, target, train_size, model, params):
-    X = df.copy(deep=True)
-    y = X.pop(target) 
+def apply_regressor(df, target, train_size, model, params, ts_cross_val=False):
+    # Extract the target values
+    y = df[target].values
+
+    # Extract the feature values (excluding the target column)
+    X = df.drop(columns=[target]).values
     
     # compute number of folds
     cv = int(1.0 / (1 - train_size))
+    if cv < 2:
+        cv = 2
     
     # initialize classifier
     if model == REGRESSOR[0]:
-        clf = DummyRegressor(**params)
+        reg = DummyRegressor(**params)
     elif model == REGRESSOR[1]:
-        clf = LinearRegression(**params)
+        reg = LinearRegression(**params)
     elif model == REGRESSOR[2]:
-        clf = RandomForestRegressor(**params)        
+        reg = RandomForestRegressor(**params)        
     elif model == REGRESSOR[3]:
-        clf = XGBRegressor(**params)
+        reg = XGBRegressor(**params)
     else:
         print(f"Unknown model: {model}")
         
     # evalutate classifier
-    scores = cross_val_score(clf, X, y, cv=cv, scoring='neg_mean_squared_error')
-    scores = -scores
+    if ts_cross_val:
+        scores = time_series_cross_val(X, y, cv, reg, scoring='neg_mean_squared_error')
+    else: 
+        scores = cross_val(X, y, cv, reg, scoring='neg_mean_squared_error')
+        
+    if scores.isna().any().any():
+        raise ValueError("Target contains contains continous values. Please check your target.")
     
-    folds = []
-    for i in range(len(scores)):
-        folds.append(f"Fold {i+1}")
-    df_scores = pd.DataFrame({'Fold': folds, 'Score': scores})
-    
+    return scores
+
+def cross_val(X, y, cv, model, scoring):
+
+    # Perform cross-validation and collect scores
+    scores = cross_val_score(model, X, y, cv=cv, scoring=scoring)
+
+    # Convert negative mean squared errors to positive 
+    if scoring == 'neg_mean_squared_error':
+        scores = -scores
+
+    # Create a DataFrame with fold indices and scores
+    df_scores = pd.DataFrame({'Fold': range(1, len(scores) + 1), 'Score': scores})
+
+    return df_scores
+
+def time_series_cross_val(X, y, cv, model, scoring):
+    # Create TimeSeriesSplit cross-validation generator
+    tscv = TimeSeriesSplit(n_splits=cv)
+
+    # Perform cross-validation and collect scores
+    scores = cross_val_score(model, X, y, cv=tscv, scoring=scoring)
+
+    # Convert negative mean squared errors to positive 
+    if scoring == 'neg_mean_squared_error':
+        scores = -scores
+
+    # Create a DataFrame with fold indices and scores
+    df_scores = pd.DataFrame({'Fold': range(1, len(scores) + 1), 'Score': scores})
+
     return df_scores
     
         

@@ -158,10 +158,22 @@ def create_container_for_parameter():
                                 value=0.8,
                                 id='slider_regression_train_test_split',
                             ),
+                            
+                            dcc.Checklist(
+                                id='checklist_regression_time_series_crossvalidation',
+                                options=['Use time series cross validation'],
+                                value=[],
+                                inputStyle={
+                                    "margin-right": "0.5rem",
+                                    "margin-top": "2rem",
+                                },
+                            )
                         ],),
                     ],
                         className='card_subcontainer',
                     ),
+                    
+                    
                     
                     dbc.Card([
                         dbc.CardHeader("Model:", className='card_subheader'),
@@ -424,8 +436,7 @@ def add_container_for_learning_rate(id_container, id_slider):
 def create_container_for_alerts():        
     layout = html.Div(
         [
-             #dbc.Alert("Invalid classes inferred from unique values of `y`. There might be missing classes or the wrong target selected.", id="alert_regression_missing_classes", is_open=False, color="danger", style={'display': 'block'}), 
-            #dbc.Alert("Numer of cross validation splits cannot be greater than the number of members in each class. Please adapt train-test-split or the target.", id="alert_regression_invalid_splits", is_open=False, color="danger", style={'display': 'block'}),
+             dbc.Alert("", id="alert_regression", is_open=False, color="danger", style={'display': 'block'}),
         ],
         style={'display': 'block'},
         id='container_regression_alerts'

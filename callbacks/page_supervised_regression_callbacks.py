@@ -97,6 +97,7 @@ def update_style_xgboost(method, style):
     Input("dropdown_regression_target", "value"),
     Input("slider_regression_train_test_split", "value"),
     Input("dropdown_regression_model", "value"),
+    Input("checklist_regression_time_series_crossvalidation", "value"),
     # baseline
     Input("dropdown_regression_baseline_strategy", "value"),
     Input("input_regression_baseline_constant", "value"),
@@ -109,17 +110,19 @@ def update_style_xgboost(method, style):
     Input("slider_regression_xgboost_n_estimators", "value"),
     Input("slider_regression_xgboost_max_depth", "value"),
     Input("slider_regression_xgboost_learning_rate", "value"),
+    # alerts
+    Input("alert_classification", "is_open"),
     State("button_regression_apply", "style"),
     State("button_regression_show", "style")
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, style_apply, style_show):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, is_open_alert, style_apply, style_show):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
     if style_show is None:
         style_show = {}   
            
-    if n_clicks1 is None or n_clicks1 == 0:
+    if n_clicks1 is None or n_clicks1 == 0 or is_open_alert:
         style_apply['display'] = 'none'
         style_show['display'] = 'block' 
     elif triggered_id is None or triggered_id == 'button_regression_show':
@@ -132,6 +135,8 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
 
 # apply regressor
 @app.callback(
+    Output("alert_regression", "children"),
+    Output("alert_regression", "is_open"),
     Output("loading_regression_preview", "children"),
     Input("button_regression_show", "n_clicks"),
     # general
@@ -139,6 +144,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("dropdown_regression_target", "value"),
     State("slider_regression_train_test_split", "value"),
     State("dropdown_regression_model", "value"),
+    State("checklist_regression_time_series_crossvalidation", "value"),
     # baseline
     State("dropdown_regression_baseline_strategy", "value"),
     State("input_regression_baseline_constant", "value"),
@@ -152,7 +158,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("slider_regression_xgboost_max_depth", "value"),
     State("slider_regression_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, baseline_strategy, baseline_constant, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, baseline_strategy, baseline_constant, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -186,10 +192,18 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     max_index = table_data.ALL_RANGES[dataset_name][1]
     df = df.loc[min_index:max_index].copy()
     
-    #try:
-    scores = apply_regressor(df, target, train_test_split, model, params)
-    #except ValueError as e:
-        #print(e)
+    if len(ts_cross_val) == 0:
+        ts_cross_val = False
+    else:
+        ts_cross_val = True
+    
+    try:
+        scores = apply_regressor(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val)
+    except ValueError as e:
+        print(e)
+        alert = True
+        alert_str = str(e)
+        return alert_str, alert, dash.no_update
     
     figure = get_cross_validation_plot(scores, title="Results Cross Validation MSE")
     graph = dcc.Graph(id="figure_regression_result", className='graph_categorical', figure=figure)
@@ -197,7 +211,7 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     global CURR_RESULT
     CURR_RESULT = (model, scores["Score"].mean())
  
-    return graph
+    return dash.no_update, False, graph
 
 # update summary
 @app.callback(

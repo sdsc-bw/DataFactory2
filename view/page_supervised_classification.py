@@ -158,6 +158,16 @@ def create_container_for_parameter():
                                 value=0.8,
                                 id='slider_classification_train_test_split',
                             ),
+                            
+                            dcc.Checklist(
+                                id='checklist_classification_time_series_crossvalidation',
+                                options=['Use time series cross validation'],
+                                value=[],
+                                inputStyle={
+                                    "margin-right": "0.5rem",
+                                    "margin-top": "2rem",
+                                },
+                            )
                         ],),
                     ],
                         className='card_subcontainer',
@@ -282,17 +292,22 @@ def add_container_for_n_neighbors(id_container, id_slider):
         dbc.CardBody([            
             dcc.Slider(
                 id=id_slider,
-                min=50,
-                max=300,
-                step=10,
-                value=50,
+                min=1,
+                max=100,
+                step=1,
+                value=5,
                 marks={
+                    1:"1",
+                    10:"10",
+                    20:"20",
+                    30:"30",
+                    40:"40",
                     50:"50",
+                    60:"60",
+                    70:"70",
+                    80:"80",
+                    90:"90",
                     100:"100",
-                    150:"150",
-                    200:"200",
-                    250:"250",
-                    300:"300",
                 },
                 tooltip={"placement": "bottom", "always_visible": False}
             ),
@@ -512,7 +527,9 @@ def create_container_for_alerts():
     layout = html.Div(
         [
              dbc.Alert("Invalid classes inferred from unique values of `y`. There might be missing classes or the wrong target selected.", id="alert_classification_missing_classes", is_open=False, color="danger", style={'display': 'block'}), 
-            dbc.Alert("Numer of cross validation splits cannot be greater than the number of members in each class. Please adapt train-test-split or the target.", id="alert_classification_invalid_splits", is_open=False, color="danger", style={'display': 'block'}),
+            dbc.Alert("Number of cross validation splits cannot be greater than the number of members in each class. Please adapt train-test-split or the target.", id="alert_classification_invalid_splits", is_open=False, color="danger", style={'display': 'block'}),
+            dbc.Alert("Number of neighbors is to large for number of Samples. Choose a smaller number of neigbors.", id="alert_classification_invalid_neighbors", is_open=False, color="danger", style={'display': 'block'}),
+            dbc.Alert("", id="alert_classification", is_open=False, color="danger", style={'display': 'block'}),
         ],
         style={'display': 'block'},
         id='container_classification_alerts'

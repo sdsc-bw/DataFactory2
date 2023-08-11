@@ -99,7 +99,10 @@ def close_modal(is_open):
     if is_open:
         return dash.no_update
     
-    return list(table_data.ALL_DATASETS.keys())[-1]
+    if len(list(table_data.ALL_DATASETS.keys())) == 0:
+        return dash.no_update
+    else:
+        return list(table_data.ALL_DATASETS.keys())[-1]
 
 @app.callback(
     Output("button_transformation_time_series_save_dataset", "n_clicks"),
@@ -296,8 +299,7 @@ def update_after_dataset_changes(dataset_name):
     
     # update parameter
     checklist_value = []
-    value_parameter = options_features[:3]
-    
+    value_parameter = options_features[:3]    
     
     return data, None, options_features, value_overview, range_values, options_features, value_parameter, checklist_value
 
@@ -318,7 +320,7 @@ def update_selected_features(all_features, options):
     Output("figure_transformation_time_series_overview", "figure"),
     Input("dropdown_transformation_time_series_overview_feature", "value"),
     Input("dropdown_transformation_time_series_plots", "value"),
-    Input("dropdown_transformation_time_series_dataset", "value"),
+    State("dropdown_transformation_time_series_dataset", "value"),
     Input("rangeslider_transformation_time_series_overview", "value"),
 )
 def update_overview_plot(cols, plot, dataset_name, values_range):

@@ -112,6 +112,7 @@ def update_style_xgboost(method, style):
     Input("dropdown_classification_target", "value"),
     Input("slider_classification_train_test_split", "value"),
     Input("dropdown_classification_model", "value"),
+    Input("checklist_classification_time_series_crossvalidation", "value"),
     # baseline
     Input("dropdown_classification_baseline_strategy", "value"),
     Input("input_classification_baseline_constant", "value"),
@@ -133,15 +134,17 @@ def update_style_xgboost(method, style):
     State("button_classification_show", "style"),
     Input("alert_classification_invalid_splits", "is_open"),
     Input("alert_classification_missing_classes", "is_open"),
+    Input("alert_classification_invalid_neighbors", "is_open"),
+    Input("alert_classification", "is_open"),
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes, is_open_invalid_neighbors, is_open_alert):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
     if style_show is None:
         style_show = {}   
            
-    if n_clicks1 is None or n_clicks1 == 0 or is_open_invalid_splits or is_open_missing_classes:
+    if n_clicks1 is None or n_clicks1 == 0 or is_open_invalid_splits or is_open_missing_classes or is_open_invalid_neighbors or is_open_alert:
         style_apply['display'] = 'none'
         style_show['display'] = 'block' 
     elif triggered_id is None or triggered_id == 'button_classification_show':
@@ -156,6 +159,9 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
 @app.callback(
     Output("alert_classification_invalid_splits", "is_open"),
     Output("alert_classification_missing_classes", "is_open"),
+    Output("alert_classification_invalid_neighbors", "is_open"),
+    Output("alert_classification", "children"),
+    Output("alert_classification", "is_open"),
     Output("loading_classification_preview", "children"),
     Input("button_classification_show", "n_clicks"),
     # general
@@ -163,6 +169,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("dropdown_classification_target", "value"),
     State("slider_classification_train_test_split", "value"),
     State("dropdown_classification_model", "value"),
+    State("checklist_classification_time_series_crossvalidation", "value"),
     # baseline
     State("dropdown_classification_baseline_strategy", "value"),
     State("input_classification_baseline_constant", "value"),
@@ -180,7 +187,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("slider_classification_xgboost_max_depth", "value"),
     State("slider_classification_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -217,16 +224,24 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     df = df.loc[min_index:max_index].copy()
     
     try:
-        scores = apply_classifier(df, target, train_test_split, model, params)
+        scores = apply_classifier(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val)
     except ValueError as e:
         print(e)
         alert_splits = False
         alert_missing_classes = False
-        if str(e).startswith('n_splits='):
+        alert_neighbors = False
+        alert_str = str(e)
+        alert = False
+        if alert_str.startswith('n_splits='):
             alert_splits = True
-        else:
+        elif alert_str.startswith('Expected n_neighbors'):
+            alert_neighbors = True
+        elif "fits failed with the following error" in alert_str:
             alert_missing_classes = True
-        return alert_splits, alert_missing_classes, dash.no_update
+        else:
+            alert = True
+            
+        return alert_splits, alert_missing_classes, alert_neighbors, alert_str, alert, dash.no_update
     
     figure = get_cross_validation_plot(scores)
     graph = dcc.Graph(id="figure_classification_result", className='graph_categorical', figure=figure)
@@ -234,7 +249,7 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     global CURR_RESULT
     CURR_RESULT = (model, scores["Score"].mean())
  
-    return False, False, graph
+    return False, False, False, dash.no_update, False, graph
 
 # update summary
 @app.callback(

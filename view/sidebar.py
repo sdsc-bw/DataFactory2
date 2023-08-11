@@ -136,10 +136,12 @@ submenu_1 = [
             [dbc.NavItem(button_dl), dbc.NavItem(button_do), dbc.NavItem(button_cf), dbc.NavItem(button_na), dbc.NavItem(button_od)], 
             #navbar=True,
             vertical=True,
-            style={"float":"right", "margin-right":"5rem"}
+            style={"float":"left", "margin-left":"2rem"},
+            
             #pills=True
         ),
         id="submenu-1-collapse",
+        is_open=True
     ),
 ]
 
@@ -279,11 +281,12 @@ submenu_2 = [
             [dbc.NavItem(button_ts)], 
             #navbar=True,
             vertical=True,
-            style={"float":"right", "margin-right":"8rem"}
+            style={"float":"left", "margin-left":"2rem"},
             #style={'margin-top': 1}
             #pills=True
         ),
         id="submenu-2-collapse",
+        is_open=True,
     ),
 ]
 
@@ -373,10 +376,11 @@ submenu_3 = [
             [dbc.NavItem(button_sc), dbc.NavItem(button_sr)], 
             #navbar=True,
             vertical=True,
-            style={"float":"right", "margin-right":"1rem"}
+            style={"float":"left", "margin-left":"2rem"},
             #pills=True
         ),
         id="submenu-3-collapse",
+        is_open=True,
     ),
 ]
 
