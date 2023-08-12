@@ -23,7 +23,7 @@ from data import table_data
 
 RESULTS = pd.DataFrame(columns=['Model','Score'])
 CURR_RESULT = None
-CLASSFIER_COUNT = {"Baseline": 0, "KNN": 0, "Random Forest": 0, "Gradient Boosting": 0}
+CLASSFIER_COUNT = {"Baseline": 1, "KNN": 1, "Random Forest": 1, "Gradient Boosting": 1}
 
 # update baseline style
 @app.callback(
@@ -154,6 +154,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     else:
         style_show['display'] = 'block'
         style_apply['display'] = 'none'  
+    
     return style_apply, style_show
 
 # apply classifier
@@ -225,10 +226,8 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     max_index = table_data.ALL_RANGES[dataset_name][1]
     df = df.loc[min_index:max_index].copy()
     
-    scoring = CLASSIFIER_SCORING[scoring]
-    
     try:
-        scores = apply_classifier(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val, scoring=scoring)
+        scores = apply_classifier(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val, scoring=CLASSIFIER_SCORING[scoring])
     except ValueError as e:
         print(e)
         alert_splits = False
@@ -258,32 +257,32 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
 # update summary
 @app.callback(
     Output("analysis_classification_summary", "figure"),
+    Output("input_classification_model_name", "value"),
     Input("button_classification_apply", "n_clicks"),
+    State("input_classification_model_name", "value"),
+    State("dropdown_classification_model", "value"),
+    State("dropdown_classification_scoring", "value"),
 )
-def update_classification_summary(n_clicks):
+def update_classification_summary(n_clicks, model_name, model, scoring):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     
     # get current result
-    global CURR_RESULT, RESULTS
-    curr_model = CURR_RESULT[0]
+    global CURR_RESULT, RESULTS, CLASSFIER_COUNT
     curr_score = CURR_RESULT[1]
-    
-    # increase count
-    CLASSFIER_COUNT[curr_model] = CLASSFIER_COUNT[curr_model] + 1
-    
-    # add index to current model
-    curr_model = curr_model + " " + str(CLASSFIER_COUNT[curr_model])
-    
+
     # update all results
-    row = pd.DataFrame({'Model': curr_model, 'Score': curr_score}, index=[0])
+    row = pd.DataFrame({'Model': model_name, 'Score': curr_score}, index=[0])
     RESULTS = pd.concat([row,RESULTS.loc[:]]).reset_index(drop=True)
-    print(RESULTS)
     
     # update figure
     figure = get_summary_plot(RESULTS)
+    
+    CLASSFIER_COUNT[model] += 1 
+    
+    model_name = model + " " + str(CLASSFIER_COUNT[model]) + " " + scoring
 
-    return figure
+    return figure, model_name
 
 # update after selected dataset changes
 @app.callback(

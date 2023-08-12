@@ -55,7 +55,6 @@ def apply_classifier(df, target, train_size, model, params, ts_cross_val=False, 
         scores = cross_val(X, y, cv, clf, scoring=scoring)
         
     if scores.isna().any().any():
-        print(df[target].nunique())
         if df[target].nunique() != 2 and (scoring == 'f1' or  scoring == 'precision' or  scoring == 'recall'):
             raise ValueError("Target is multiclass but scoring is 'Binary'. Please choose another scoring.")
         else:   

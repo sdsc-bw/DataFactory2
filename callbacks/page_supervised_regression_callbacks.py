@@ -23,7 +23,7 @@ from data import table_data
 
 RESULTS = pd.DataFrame(columns=['Model','Score'])
 CURR_RESULT = None
-REGRESSOR_COUNT = {"Baseline": 0, "Linear": 0, "Random Forest": 0, "Gradient Boosting": 0}
+REGRESSOR_COUNT = {"Baseline": 1, "Linear": 1, "Random Forest": 1, "Gradient Boosting": 1}
 
 # update baseline style
 @app.callback(
@@ -220,31 +220,32 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
 # update summary
 @app.callback(
     Output("analysis_regression_summary", "figure"),
+    Output("input_regression_model_name", "value"),
     Input("button_regression_apply", "n_clicks"),
+    State("input_regression_model_name", "value"),
+    State("dropdown_regression_model", "value"),
+    State("dropdown_regression_scoring", "value"),
 )
-def update_regression_summary(n_clicks):
+def update_regression_summary(n_clicks, model_name, model, scoring):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     
     # get current result
     global CURR_RESULT, RESULTS
-    curr_model = CURR_RESULT[0]
     curr_score = CURR_RESULT[1]
     
-    # increase count
-    REGRESSOR_COUNT[curr_model] = REGRESSOR_COUNT[curr_model] + 1
-    
-    # add index to current model
-    curr_model = curr_model + " " + str(REGRESSOR_COUNT[curr_model])
-    
     # update all results
-    row = pd.DataFrame({'Model': curr_model, 'Score': curr_score}, index=[0])
+    row = pd.DataFrame({'Model': model_name, 'Score': curr_score}, index=[0])
     RESULTS = pd.concat([row,RESULTS.loc[:]]).reset_index(drop=True)
     
     # update figure
     figure = get_summary_plot(RESULTS)
 
-    return figure
+    REGRESSOR_COUNT[model] += 1 
+    
+    model_name = model + " " + str(REGRESSOR_COUNT[model]) + " " + scoring
+
+    return figure, model_name
 
 # update after selected dataset changes
 @app.callback(

@@ -207,6 +207,21 @@ def create_container_for_parameter():
                     create_container_for_random_forest(),
                     create_container_for_xgboost(),
                     
+                    dbc.Card([
+                        dbc.CardHeader("Model Name:", className='card_subheader'),
+                        dbc.CardBody([
+                            dcc.Input(
+                                id='input_regression_model_name',
+                                value='Baseline 1 Accuracy',
+                                className='dropdown_overview_multi_feature',
+                                required=True,
+                                type='text',
+                            ),
+                        ],),
+                    ],
+                        className='card_subcontainer',
+                    ),
+                    
                     create_container_for_alerts(),
                     
                     
