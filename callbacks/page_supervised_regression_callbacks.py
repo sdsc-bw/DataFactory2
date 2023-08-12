@@ -98,6 +98,7 @@ def update_style_xgboost(method, style):
     Input("slider_regression_train_test_split", "value"),
     Input("dropdown_regression_model", "value"),
     Input("checklist_regression_time_series_crossvalidation", "value"),
+    Input("dropdown_regression_scoring", "value"),
     # baseline
     Input("dropdown_regression_baseline_strategy", "value"),
     Input("input_regression_baseline_constant", "value"),
@@ -115,7 +116,7 @@ def update_style_xgboost(method, style):
     State("button_regression_apply", "style"),
     State("button_regression_show", "style")
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, is_open_alert, style_apply, style_show):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, is_open_alert, style_apply, style_show):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
@@ -145,6 +146,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("slider_regression_train_test_split", "value"),
     State("dropdown_regression_model", "value"),
     State("checklist_regression_time_series_crossvalidation", "value"),
+    State("dropdown_regression_scoring", "value"),
     # baseline
     State("dropdown_regression_baseline_strategy", "value"),
     State("input_regression_baseline_constant", "value"),
@@ -158,7 +160,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("slider_regression_xgboost_max_depth", "value"),
     State("slider_regression_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, baseline_strategy, baseline_constant, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -187,6 +189,8 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
            
     df = table_data.ALL_DATASETS[dataset_name]
     
+    scoring = REGRESSOR_SCORING[scoring]
+    
     # use data between defined ranges
     min_index = table_data.ALL_RANGES[dataset_name][0]
     max_index = table_data.ALL_RANGES[dataset_name][1]
@@ -198,14 +202,14 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
         ts_cross_val = True
     
     try:
-        scores = apply_regressor(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val)
+        scores = apply_regressor(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val, scoring=scoring)
     except ValueError as e:
         print(e)
         alert = True
         alert_str = str(e)
         return alert_str, alert, dash.no_update
     
-    figure = get_cross_validation_plot(scores, title="Results Cross Validation MSE")
+    figure = get_cross_validation_plot(scores, title="Results Cross Validation Scores")
     graph = dcc.Graph(id="figure_regression_result", className='graph_categorical', figure=figure)
     
     global CURR_RESULT

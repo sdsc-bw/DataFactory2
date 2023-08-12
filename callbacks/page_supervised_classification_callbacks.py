@@ -113,6 +113,7 @@ def update_style_xgboost(method, style):
     Input("slider_classification_train_test_split", "value"),
     Input("dropdown_classification_model", "value"),
     Input("checklist_classification_time_series_crossvalidation", "value"),
+    Input("dropdown_classification_scoring", "value"),
     # baseline
     Input("dropdown_classification_baseline_strategy", "value"),
     Input("input_classification_baseline_constant", "value"),
@@ -137,7 +138,7 @@ def update_style_xgboost(method, style):
     Input("alert_classification_invalid_neighbors", "is_open"),
     Input("alert_classification", "is_open"),
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes, is_open_invalid_neighbors, is_open_alert):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes, is_open_invalid_neighbors, is_open_alert):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
@@ -170,6 +171,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("slider_classification_train_test_split", "value"),
     State("dropdown_classification_model", "value"),
     State("checklist_classification_time_series_crossvalidation", "value"),
+    State("dropdown_classification_scoring", "value"),
     # baseline
     State("dropdown_classification_baseline_strategy", "value"),
     State("input_classification_baseline_constant", "value"),
@@ -187,7 +189,7 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     State("slider_classification_xgboost_max_depth", "value"),
     State("slider_classification_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -223,8 +225,10 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     max_index = table_data.ALL_RANGES[dataset_name][1]
     df = df.loc[min_index:max_index].copy()
     
+    scoring = CLASSIFIER_SCORING[scoring]
+    
     try:
-        scores = apply_classifier(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val)
+        scores = apply_classifier(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val, scoring=scoring)
     except ValueError as e:
         print(e)
         alert_splits = False

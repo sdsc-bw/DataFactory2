@@ -26,7 +26,7 @@ def create_data_supervised_panel():
                 [
                     dbc.CardHeader(
                         [
-                            "Summary: Average F1 Scores"
+                            "Summary: Average Cross Validation Scores"
                         ],
                         className='card_header'
                     ),
@@ -168,6 +168,21 @@ def create_container_for_parameter():
                                     "margin-top": "2rem",
                                 },
                             )
+                        ],),
+                    ],
+                        className='card_subcontainer',
+                    ),
+                    
+                    dbc.Card([
+                        dbc.CardHeader("Evaluation Scoring:", className='card_subheader'),
+                        dbc.CardBody([
+                            dcc.Dropdown(
+                                id='dropdown_classification_scoring',
+                                options=[{'label': i, 'value': i} for i in CLASSIFIER_SCORING.keys()],
+                                value= list(CLASSIFIER_SCORING.keys())[0],
+                                className='dropdown_overview_multi_feature',
+                                clearable=False,
+                            ),
                         ],),
                     ],
                         className='card_subcontainer',

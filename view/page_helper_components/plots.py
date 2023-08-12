@@ -199,7 +199,7 @@ def get_outlier_plot(df):
     figure = px.scatter(df, x = "x", y = "y", color="Is Outlier")
     return figure
 
-def get_cross_validation_plot(df, title="Results Cross Validation F1 Score"):
+def get_cross_validation_plot(df, title="Results Cross Validation Scoring"):
     figure = px.bar(df, x="Fold", y="Score", title=title)
     return figure
 

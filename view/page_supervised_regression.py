@@ -26,7 +26,7 @@ def create_data_supervised_panel():
                 [
                     dbc.CardHeader(
                         [
-                            "Summary: Average MSE"
+                            "Summary: Average Cross Validation Scores"
                         ],
                         className='card_header'
                     ),
@@ -173,7 +173,20 @@ def create_container_for_parameter():
                         className='card_subcontainer',
                     ),
                     
-                    
+                    dbc.Card([
+                        dbc.CardHeader("Evaluation Scoring:", className='card_subheader'),
+                        dbc.CardBody([
+                            dcc.Dropdown(
+                                id='dropdown_regression_scoring',
+                                options=[{'label': i, 'value': i} for i in REGRESSOR_SCORING.keys()],
+                                value= list(REGRESSOR_SCORING.keys())[0],
+                                className='dropdown_overview_multi_feature',
+                                clearable=False,
+                            ),
+                        ],),
+                    ],
+                        className='card_subcontainer',
+                    ),
                     
                     dbc.Card([
                         dbc.CardHeader("Model:", className='card_subheader'),
