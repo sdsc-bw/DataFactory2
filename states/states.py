@@ -77,6 +77,10 @@ def save_states():
 
 # manage datasets
 def save_dataset(df, dataset_name, sep, index_min=None, index_max=None):
+    for save_dir in save_dirs:
+        if not os.path.exists(save_dir):
+            os.mkdir(save_dir)
+    
     # select range
     if index_min is not None:
         df = df.iloc[index_min:]
