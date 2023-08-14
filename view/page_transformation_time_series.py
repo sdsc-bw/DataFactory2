@@ -142,7 +142,7 @@ def create_container_for_overview():
                                 multi=True,
                             ),
                         ],
-                        width=7
+                        width=6
                         ),
                          
                         dbc.Col([
@@ -195,7 +195,7 @@ def create_container_for_overview():
                                 ),
                             ], justify='center', className='row_dropdown_and_button')
                         ], 
-                            width=2)
+                            width=3)
                     ]),
                     
                 ],
