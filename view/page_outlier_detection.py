@@ -158,7 +158,7 @@ def create_container_for_parameter():
                     create_container_for_kv_detector(),
                     
                     html.Div([
-                        dbc.Button("Apply", color = "primary", id="button_outlier_apply", className='btn_apply')
+                        dbc.Button("Remove", color = "primary", id="button_outlier_apply", className='btn_apply')
                     ], className="btn_aligned_right"),
                     
                     html.Div([
@@ -191,7 +191,15 @@ def create_container_for_random_forest_detector():
     
 def add_container_for_warm_start(id_container, id_checklist):
     layout = dbc.Card([
-        dbc.CardHeader("Warm Start:", className='card_subheader'),
+        dbc.CardHeader([
+            "Warm Start:",
+            html.Img(id='img_outlier_warm_start', src="/assets/img/tooltip.png", className='tooltip_img'),
+            dbc.Tooltip(
+                "When selected, reuse the solution of the previous call to fit and add more estimators to the ensemble, otherwise, just fit a whole new forest.",
+                target='img_outlier_warm_start', 
+            ),
+        ]
+                       , className='card_subheader'),
         dbc.CardBody([
             dcc.Checklist(
                 options=['Warm Start'],
@@ -287,7 +295,7 @@ def add_container_for_n_neighbors(id_container, id_slider):
 
 def add_container_for_algorithm(id_container, id_dropdown):
     layout = dbc.Card([
-        dbc.CardHeader("Algorithm", className='card_subheader'),
+        dbc.CardHeader("Algorithm:", className='card_subheader'),
         dbc.CardBody([
             dcc.Dropdown(
                 id=id_dropdown,
@@ -308,7 +316,7 @@ def add_container_for_algorithm(id_container, id_dropdown):
 
 def add_container_for_contamination(id_container, id_slider):
     layout = dbc.Card([
-        dbc.CardHeader("Proportion of Outliers", className='card_subheader'),
+        dbc.CardHeader("Proportion of Outliers:", className='card_subheader'),
         dbc.CardBody([
             dcc.Slider(
                 id="id_slider",
@@ -350,7 +358,7 @@ def create_container_for_kv_detector():
 
 def add_container_for_feature(id_container, id_dropdown):
     layout = dbc.Card([
-        dbc.CardHeader("Feature", className='card_subheader'),
+        dbc.CardHeader("Feature:", className='card_subheader'),
         dbc.CardBody([
             dcc.Dropdown(
                 id=id_dropdown,
@@ -375,7 +383,14 @@ def create_outlier_table():
     layout = dbc.Col(
         dbc.Card(
             [
-                dbc.CardHeader("Outlier Selection", className='card_header'),
+                dbc.CardHeader([
+                    "Outlier Selection",
+                    html.Img(id='img_outlier_selection', src="/assets/img/tooltip.png", className='tooltip_img'),
+                    dbc.Tooltip(
+                        "Here are the datapoints listed which are detected as outlier. You can manually deselect datapoints to keep them in the dataset.",
+                        target='img_outlier_selection', 
+                    ),
+                ], className='card_header'),
                 dbc.CardBody(
                     [
                     dash_table.DataTable(

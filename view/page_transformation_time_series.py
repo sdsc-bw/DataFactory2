@@ -100,7 +100,12 @@ def create_container_for_overview():
         [
             dbc.CardHeader(
                 [
-                    "Transformation Overview"
+                    "Transformation Overview", 
+                    html.Img(id='img_transformation_time_series_overview', src="/assets/img/tooltip.png", className='tooltip_img'),
+                    dbc.Tooltip(
+                        "You need to create a dataset in order to train models. Add a new dataset with '+'. With the slider you can cut out an interval of the dataset that is later used for the analysis. You can create multiple datasets with different features and transformations.",
+                        target='img_transformation_time_series_overview', 
+                    ),
                 ],
                 className='card_header'
             ),

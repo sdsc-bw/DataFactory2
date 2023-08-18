@@ -57,25 +57,7 @@ def get_num_nan(df):
     df_na = df_na.reset_index()    
     return df_na
 
-def convert_string_columns_to_timestamps(df):
-    patterns = [
-        r'\d{4}-\d{2}-\d{2}',         # yyyy-mm-dd
-        r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',  # yyyy-mm-dd HH:MM:SS
-        r'\d{4}/\d{2}/\d{2}',         # yyyy/mm/dd
-        r'\d{2}/\d{2}/\d{4}',         # mm/dd/yyyy
-        # Add more patterns as needed
-    ]
-    
-    for col in df.columns:
-        if df[col].apply(lambda x: isinstance(x, str) and any(re.match(pattern, x) for pattern in patterns)).all():
-            try:
-                df[col] = pd.to_datetime(df[col])
-            except ValueError:
-                pass             
-    return df
-
 def analyse_df(df): 
-    df = convert_string_columns_to_timestamps(df)
     description_num = analyse_numeric_data(df)
     description_cat = analyse_categorical_data(df)
     

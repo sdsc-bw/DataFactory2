@@ -366,11 +366,13 @@ def generate_datatable_with_dataframe(id, title=''):
     else:
         cols = [{"name": i, "id": i} for i in OVERVIEW_COLUMNS]
         data = None
+     
+    tooltip = "In this table you can delete features. You can also use the search function (first row under the header) to filter for values. In case of numeric values you can also use '<', '>','<=', '>=' and '!='. E.g. use '< 60.8' to filter for values less than 60.8. "
         
     layout = dbc.Col(
         dbc.Card(
             [
-                add_cardheader_for_fullscreen_and_close('button_overview_datatable_close', 'button_overview_datatable_fullscreen', title, 'card_overview_datatable'),
+                add_cardheader_for_fullscreen_and_close('button_overview_datatable_close', 'button_overview_datatable_fullscreen', title, 'card_overview_datatable', 'img_overview_datatable', tooltip),
                 dbc.CardBody(
                     [
                         dash_table.DataTable(
@@ -488,35 +490,70 @@ def generate_heatmap_figure_with_dataframe(df):
 
 
 ############# util
-def add_cardheader_for_fullscreen_and_close(id_close, id_fullscreen, title, id_target=None):
-    layout = dbc.CardHeader(
-        [
-            dbc.Row(
-                [
-                    dbc.Col(html.H5(title, className='h5'), width=11),
-                    dbc.Col(
-                        [
-                            dbc.Button(
-                                html.Img(src="/assets/img/fullscreen.png", className='btn_img'),
-                                id=id_fullscreen,
-                                color="#FDFCFC",
-                                style={'display': 'block'}
-                            ),
-                            dbc.Button(
-                                html.Img(src="/assets/img/close.png", className='btn_img'),
-                                id=id_close,
-                                color="#FDFCFC",
-                                style={'display': 'block'}
-                            )
-                        ],
-                        width=1,
-                        style={'display': 'flex', 'flex-direction': 'row', 'align-items': 'center'}
-                    ),
-                ],
-                className='card_header_fullscreen_and_close'
-            )
-        ],
-    )
+def add_cardheader_for_fullscreen_and_close(id_close, id_fullscreen, title, id_target=None, id_tooltip="", tooltip=""):
+    if tooltip == "":
+        layout = dbc.CardHeader(
+            [
+                dbc.Row(
+                    [
+                        dbc.Col(html.H5(title, className='h5'), width=11),
+                        dbc.Col(
+                            [
+                                dbc.Button(
+                                    html.Img(src="/assets/img/fullscreen.png", className='btn_img'),
+                                    id=id_fullscreen,
+                                    color="#FDFCFC",
+                                    style={'display': 'block'}
+                                ),
+                                dbc.Button(
+                                    html.Img(src="/assets/img/close.png", className='btn_img'),
+                                    id=id_close,
+                                    color="#FDFCFC",
+                                    style={'display': 'block'}
+                                )
+                            ],
+                            width=1,
+                            style={'display': 'flex', 'flex-direction': 'row', 'align-items': 'center'}
+                        ),
+                    ],
+                    className='card_header_fullscreen_and_close'
+                )
+            ],
+        )
+    else:
+        layout = dbc.CardHeader(
+            [
+                dbc.Row(
+                    [
+                        dbc.Col(html.H5(title, className='h5'), width=11),
+                        dbc.Col(
+                            [
+                                html.Img(id=id_tooltip, src="/assets/img/tooltip.png", className='tooltip_img'),
+                                dbc.Tooltip(
+                                    tooltip,
+                                    target='img_overview_datatable', 
+                                ),
+                                dbc.Button(
+                                    html.Img(src="/assets/img/fullscreen.png", className='btn_img'),
+                                    id=id_fullscreen,
+                                    color="#FDFCFC",
+                                    style={'display': 'block'}
+                                ),
+                                dbc.Button(
+                                    html.Img(src="/assets/img/close.png", className='btn_img'),
+                                    id=id_close,
+                                    color="#FDFCFC",
+                                    style={'display': 'block'}
+                                )
+                            ],
+                            width=1,
+                            style={'display': 'flex', 'flex-direction': 'row', 'align-items': 'center'}
+                        ),
+                    ],
+                    className='card_header_fullscreen_and_close'
+                )
+            ],
+        )
     
     if id_target:
         # regist callback

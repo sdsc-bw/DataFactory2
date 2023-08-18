@@ -155,7 +155,14 @@ def add_container_for_index(id_container, id_dropdown):
     index_options = [{'label': 'Auto', 'value': 'auto'}, {'label': 'None', 'value': 'none'}]
     
     layout = dbc.Card([
-        dbc.CardHeader("Index:", className='card_subheader'),
+        dbc.CardHeader([
+            "Index:",
+            html.Img(id='img_loading_index', src="/assets/img/tooltip.png", className='tooltip_img'),
+            dbc.Tooltip(
+                "The index is required for plotting. If your data has no index column or the index is a datetime, it is recommended to set this parameter to 'Auto' in order to add an extra index column.",
+                target='img_loading_index', 
+            ),
+        ], className='card_subheader'),
         dbc.CardBody([
             dcc.Dropdown(
                 id=id_dropdown,
