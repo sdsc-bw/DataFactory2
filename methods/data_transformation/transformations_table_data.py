@@ -442,7 +442,7 @@ def apply_shifting(df, cols, params):
     
     # Create a new dataframe with the shifted columns added
     shifted_df = pd.DataFrame(shifted_columns, index=df.index)
-    shifted_df = shifted_df[shift_steps:]
+    shifted_df = shifted_df.fillna(method='backfill')
     
     # get new_cols
     new_cols = compare_lists(list(df.columns), list(shifted_df.columns))
