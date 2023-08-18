@@ -1,0 +1,17 @@
+.ipynb_checkpoints/
+assets/img/plus.png
+data/__pycache__/
+methods/__pycache__/
+methods/data_analysis/__pycache__/
+methods/data_exploration/__pycache__/
+methods/data_transformation/__pycache__/
+states/__pycache__/
+states/data_states/
+states/page_states/
+view/__pycache__/
+view/page_helper_components/__pycache__/
+callbacks/__pycache__/page_overview_callbacks.cpython-38.pyc
+callbacks/__pycache__/page_supervised_classification_callbacks.cpython-38.pyc
+callbacks/__pycache__/page_supervised_regression_callbacks.cpython-38.pyc
+callbacks/__pycache__/page_transformation_time_series_callbacks.cpython-38.pyc
+
