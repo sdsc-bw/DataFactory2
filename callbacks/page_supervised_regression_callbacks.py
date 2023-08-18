@@ -264,4 +264,11 @@ def update_after_dataset_changes(dataset_name):
     
     return options, value
 
-
+# update after options for selected dataset changes
+@app.callback(
+    Output("button_regression_show", "disabled"),
+    Input("dropdown_regression_dataset", "options"),
+)
+def update_after_dataset_changes(options):
+    
+    return len(options) < 1

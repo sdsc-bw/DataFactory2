@@ -29,14 +29,23 @@ from methods.util import remove_item_if_exist
 @app.callback(
     Output("modal_transformation_time_series_delete_dataset", "is_open"),
     Input("button_transformation_time_series_delete_dataset", "n_clicks"),     
-    Input("button_transformation_table_data_delete_dataset_no", "n_clicks"),
-    State("modal_transformation_table_data_delete_dataset", "is_open"),
+    Input("button_transformation_time_series_delete_dataset_no", "n_clicks"),
+    State("modal_transformation_time_series_delete_dataset", "is_open"),
 )
 def toggle_deletion_modal(n_clicks1, n_clicks2, is_open):
+    print('test')
     if n_clicks1 is None or n_clicks1 == 0:
         return dash.no_update
     
     return not is_open
+
+# update datasets
+@app.callback(
+    Output("button_transformation_time_series_save_dataset", "disabled"),
+    Input("dropdown_transformation_time_series_dataset", "options"),
+)
+def disable_save_dataset(options):
+    return not len(options) > 0
 
 @app.callback(
     Output("modal_transformation_time_series_delete_dataset", "is_open"),
@@ -61,7 +70,7 @@ def delete_datset(n_clicks, is_open, dataset_name):
     save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
 
     # update datasets
-    options_datasets = list(table_data.ALL_DATASETS.keys()) + ['New Dataset...']
+    options_datasets = list(table_data.ALL_DATASETS.keys())
     curr_dataset = options_datasets[0]
     
     # update overview line plot
@@ -79,14 +88,11 @@ def delete_datset(n_clicks, is_open, dataset_name):
 
 @app.callback(
     Output("modal_transformation_time_series_add_dataset", "is_open"),
-    Input("dropdown_transformation_time_series_dataset", "value"), 
+    Input("button_transformation_time_series_plus_dataset", "n_clicks"), 
     State("modal_transformation_time_series_add_dataset", "is_open"),
 )
-def toggle_modal(value, is_open):
-    if value is None:
-        return dash.no_update
-    
-    if value in list(table_data.ALL_DATASETS.keys()):
+def toggle_modal(n_clicks, is_open):
+    if n_clicks is None:
         return dash.no_update
     
     return not is_open
@@ -146,7 +152,7 @@ def add_dataset(n_clicks, is_open, dataset_name):
     # update datasets
     table_data.ALL_DATASETS[dataset_name] = table_data.DF_RAW.copy(deep=True)
     table_data.ALL_RANGES[dataset_name] = [table_data.DF_RAW.index.min(), table_data.DF_RAW.index.max()]
-    options_datasets = list(table_data.ALL_DATASETS.keys()) + ['New Dataset...']
+    options_datasets = list(table_data.ALL_DATASETS.keys())
     curr_dataset = dataset_name
     
     # update overview line plot
@@ -158,7 +164,7 @@ def add_dataset(n_clicks, is_open, dataset_name):
     value_parameter = options_features[:3]
     
     # update automatic dataset name
-    new_dataset_name = 'new_dataset_' + str(len(table_data.ALL_DATASETS.keys()))
+    new_dataset_name = 'new_dataset_' + str(len(table_data.ALL_DATASETS.keys()) + 1)
 
     # update disabled button
     disabled = len(list(table_data.ALL_DATASETS.keys())) < 2
@@ -283,7 +289,7 @@ def delete_feature(previous, current, dataset_name, value_overview, value_parame
     Input("dropdown_transformation_time_series_dataset", "value"),
 )
 def update_after_dataset_changes(dataset_name):
-    if dataset_name is None or dataset_name == 'New Dataset...' or dataset_name == '':
+    if dataset_name is None or dataset_name == '':
         return dash.no_update
     
     df = table_data.ALL_DATASETS[dataset_name]
@@ -326,7 +332,7 @@ def update_selected_features(all_features, options):
 def update_overview_plot(cols, plot, dataset_name, values_range):
     if cols is None or cols == "":
         return dash.no_update
-    if dataset_name is None or dataset_name == 'New Dataset...' or dataset_name == '':
+    if dataset_name is None or dataset_name == '':
         return dash.no_update
 
     value_min = values_range[0]
@@ -603,7 +609,7 @@ def update_style_buttons(n_clicks, dataset_name, v2, method, v4, pca_feature_nam
         return style_apply, style_show
     
     # handle false input
-    if dataset_name == 'New Dataset...' or dataset_name is None:
+    if dataset_name is None:
         return dash.no_update
     
     if method == TRANSFORMATIONS_TS[8] and sgf_poly_order >= sgf_periods:

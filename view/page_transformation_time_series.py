@@ -172,13 +172,12 @@ def create_container_for_overview():
                                         className='dropdown_overview_single_feature_full_width',
                                         clearable=False,
                                     ),
-                                    width=9
+                                    width=8
                                 ),
                                 dbc.Col(
                                     dbc.Button(
-                                        html.Img(src="/assets/img/delete.png", className='btn_img'),
-                                        id='button_transformation_time_series_delete_dataset',
-                                        disabled=disabled,
+                                        html.Img(src="/assets/img/plus.png", className='btn_img'),
+                                        id='button_transformation_time_series_plus_dataset',
                                         color="#FDFCFC",
                                     ),
                                     className='btn_delete',
@@ -193,6 +192,17 @@ def create_container_for_overview():
                                     className='btn_delete',
                                     width=1
                                 ),
+                                dbc.Col(
+                                    dbc.Button(
+                                        html.Img(src="/assets/img/delete.png", className='btn_img'),
+                                        id='button_transformation_time_series_delete_dataset',
+                                        disabled=disabled,
+                                        color="#FDFCFC",
+                                    ),
+                                    className='btn_delete',
+                                    width=1
+                                ),
+                                
                             ], justify='center', className='row_dropdown_and_button')
                         ], 
                             width=3)
@@ -228,7 +238,7 @@ def create_container_for_overview_plot():
 def create_container_for_feature_table():
     datasets = list(table_data.ALL_DATASETS.keys())
     if len(datasets) > 0:
-        options = list(table_data.ALL_DATASETS.keys()) + ['New Dataset...']
+        options = list(table_data.ALL_DATASETS.keys())
         value = options[0]
         data = pd.DataFrame({'Features': table_data.ALL_DATASETS[value].columns}).to_dict('records')
     else:
@@ -296,7 +306,7 @@ def create_container_for_preview_plot():
 def create_container_for_parameter():
     datasets = list(table_data.ALL_DATASETS.keys())
     if len(datasets) > 0:
-        options_dataset = list(table_data.ALL_DATASETS.keys()) + ['New Dataset...']
+        options_dataset = list(table_data.ALL_DATASETS.keys())
         dataset_curr = options_dataset[0]
 
         df = table_data.ALL_DATASETS[dataset_curr]
