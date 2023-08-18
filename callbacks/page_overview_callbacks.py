@@ -191,11 +191,11 @@ def delete_feature(previous, current, histogram_values, histogram_index_value, l
     # update state
     save_dataset(table_data.DF_RAW, IN_PROCESSING_DATASETNAME, table_data.SEP)
     # TODO update outlier, transformation, supervised when no cat and no nan
-    if check_if_cleaned(table_data.DF_RAW):
-        if CLEANED_DATASETNAME not in list(table_data.ALL_DATASETS.keys()):
-            table_data.ALL_DATASETS[CLEANED_DATASETNAME] = table_data.DF_RAW
-            table_data.ALL_RANGES[CLEANED_DATASETNAME] = [table_data.DF_RAW.index.min(), table_data.DF_RAW.index.max()]
-        options_transformation = list(table_data.ALL_DATASETS.keys()) + ['New Dataset...']
+    if len(list(table_data.ALL_DATASETS.keys())) > 0:
+        #if CLEANED_DATASETNAME not in list(table_data.ALL_DATASETS.keys()):
+        #    table_data.ALL_DATASETS[CLEANED_DATASETNAME] = table_data.DF_RAW
+        #    table_data.ALL_RANGES[CLEANED_DATASETNAME] = [table_data.DF_RAW.index.min(), table_data.DF_RAW.index.max()]
+        options_transformation = list(table_data.ALL_DATASETS.keys())
         value_transformation = options_transformation[0]
     else:
         options_transformation = []

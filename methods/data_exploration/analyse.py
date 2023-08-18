@@ -1,11 +1,13 @@
 # Import necessary libraries
 import pandas as pd
 import math
+import re
 
 # import data
 from data import table_data
 
 NUMERICS = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
+TIMES = ['datetime64[ns]']
 OVERVIEW_COLUMNS = ['features', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', '%NA', 'datatype', 'unique', 'top', 'freq']
 
 def check_if_cleaned(df):
@@ -55,13 +57,31 @@ def get_num_nan(df):
     df_na.columns = ["#NA"]
     df_na = df_na.reset_index()    
     return df_na
-    
 
-def analyse_df(df):  
+def convert_string_columns_to_timestamps(df):
+    patterns = [
+        r'\d{4}-\d{2}-\d{2}',         # yyyy-mm-dd
+        r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}',  # yyyy-mm-dd HH:MM:SS
+        r'\d{4}/\d{2}/\d{2}',         # yyyy/mm/dd
+        r'\d{2}/\d{2}/\d{4}',         # mm/dd/yyyy
+        # Add more patterns as needed
+    ]
+    
+    for col in df.columns:
+        if df[col].apply(lambda x: isinstance(x, str) and any(re.match(pattern, x) for pattern in patterns)).all():
+            try:
+                df[col] = pd.to_datetime(df[col])
+            except ValueError:
+                pass             
+    return df
+
+def analyse_df(df): 
+    df = convert_string_columns_to_timestamps(df)
     description_num = analyse_numeric_data(df)
     description_cat = analyse_categorical_data(df)
+    description_time = analyse_time_data(df)
     
-    description = pd.concat([description_num, description_cat], axis=0, ignore_index=True)
+    description = pd.concat([description_time, description_num, description_cat], axis=0, ignore_index=True)
     
     description.fillna('-', inplace=True)
     
@@ -73,11 +93,33 @@ def analyse_numeric_data(df):
     df = df[cols]
     
     if len(cols) == 0:
-        return pd.DataFrame([], columns=['features', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', '%NA', 'datatype'])
+        return pd.DataFrame([], columns=['features', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', '%NA', 'datatype', 'unique', 'top', 'freq'])
     
     # describe data
     description = df.describe().T.reset_index()
     description = description.round(2)
+    description['%NA'] = get_percentage_nan(df).values
+    description['datatype'] = get_dtypes(df).values 
+    description['unique'] = df.nunique().values
+    description['top'] = df.apply(lambda x: x.mode().values[0]).values
+    description['freq'] = df.apply(lambda x: x.value_counts().max()).values 
+    
+    # rename index column
+    cols = list(description.columns)
+    cols[0] = 'features'
+    description.columns = cols
+    return description
+
+def analyse_time_data(df):
+    # select only numeric data    
+    cols = df.select_dtypes(include=TIMES).columns
+    df = df[cols]
+    
+    if len(cols) == 0:
+        return pd.DataFrame([], columns=['features', 'count', 'unique', 'top', 'freq', '%NA', 'datatype'])
+    
+    # describe data
+    description = df.describe().T.reset_index()
     description['%NA'] = get_percentage_nan(df).values
     description['datatype'] = get_dtypes(df).values 
     
