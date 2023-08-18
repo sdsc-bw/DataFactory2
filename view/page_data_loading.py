@@ -152,7 +152,7 @@ def create_container_for_table_data_parameter():
     return layout 
 
 def add_container_for_index(id_container, id_dropdown):
-    index_options = [{'label': 'None', 'value': 'none'}, {'label': 'Auto', 'value': 'auto'}]
+    index_options = [{'label': 'Auto', 'value': 'auto'}, {'label': 'None', 'value': 'none'}]
     
     layout = dbc.Card([
         dbc.CardHeader("Index:", className='card_subheader'),

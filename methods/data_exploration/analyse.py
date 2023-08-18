@@ -7,7 +7,6 @@ import re
 from data import table_data
 
 NUMERICS = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
-TIMES = ['datetime64[ns]']
 OVERVIEW_COLUMNS = ['features', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', '%NA', 'datatype', 'unique', 'top', 'freq']
 
 def check_if_cleaned(df):
@@ -48,7 +47,7 @@ def get_percentage_numeric(df):
     return f"{num_percentage}%"
 
 def get_num_numeric_categorical(df):
-    num_cat = len(df.select_dtypes(include='object').columns)
+    num_cat = len(df.select_dtypes(exclude=NUMERICS).columns)
     num_num = len(df.columns) - num_cat
     return num_num, num_cat
 
@@ -79,9 +78,8 @@ def analyse_df(df):
     df = convert_string_columns_to_timestamps(df)
     description_num = analyse_numeric_data(df)
     description_cat = analyse_categorical_data(df)
-    description_time = analyse_time_data(df)
     
-    description = pd.concat([description_time, description_num, description_cat], axis=0, ignore_index=True)
+    description = pd.concat([description_num, description_cat], axis=0, ignore_index=True)
     
     description.fillna('-', inplace=True)
     
@@ -110,28 +108,10 @@ def analyse_numeric_data(df):
     description.columns = cols
     return description
 
-def analyse_time_data(df):
-    # select only numeric data    
-    cols = df.select_dtypes(include=TIMES).columns
-    df = df[cols]
-    
-    if len(cols) == 0:
-        return pd.DataFrame([], columns=['features', 'count', 'unique', 'top', 'freq', '%NA', 'datatype'])
-    
-    # describe data
-    description = df.describe().T.reset_index()
-    description['%NA'] = get_percentage_nan(df).values
-    description['datatype'] = get_dtypes(df).values 
-    
-    # rename index column
-    cols = list(description.columns)
-    cols[0] = 'features'
-    description.columns = cols
-    return description
 
 def analyse_categorical_data(df):
     # select only categorical data
-    cols = df.select_dtypes(include='object').columns
+    cols = df.select_dtypes(exclude=NUMERICS).columns
     df = df[cols]
     
     if len(cols) == 0:
