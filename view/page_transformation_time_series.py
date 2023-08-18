@@ -420,10 +420,6 @@ def create_delete_dataset_modal():
     return layout
 
 def create_add_dataset_modal():
-    if len(table_data.ALL_DATASETS) > 0:
-        index = str(len(table_data.ALL_DATASETS))
-    else:
-        index = "1"
     layout = dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Add New Dataset"), close_button=True),
@@ -431,7 +427,7 @@ def create_add_dataset_modal():
                     html.P("Name the new dataset:"),
                     dcc.Input(
                         id='input_transformation_time_series_new_dataset',
-                        value='new_dataset_' + index,
+                        value='new_dataset',
                     ),
                 dbc.Alert("Duplicate dataset name!", id="alert_transformation_time_series_duplicate_dataset", is_open=False, color="danger", style={'display': 'block'}),    
                 ]),

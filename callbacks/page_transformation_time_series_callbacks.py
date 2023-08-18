@@ -163,7 +163,7 @@ def add_dataset(n_clicks, is_open, dataset_name):
     value_parameter = options_features[:3]
     
     # update automatic dataset name
-    new_dataset_name = 'new_dataset_' + str(len(table_data.ALL_DATASETS.keys()) + 1)
+    new_dataset_name = 'new_dataset'
 
     # update disabled button
     disabled = len(list(table_data.ALL_DATASETS.keys())) < 2
@@ -596,7 +596,7 @@ def update_after_dataset_changes(datasets, dataset_name_classification, dataset_
     State("button_transformation_time_series_apply", "style"),
     State("button_transformation_time_series_show", "style")
 )
-def update_style_buttons(n_clicks, dataset_name, v2, method, v4, pca_feature_name, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, sgf_poly_order, sgf_periods, style_apply, style_show):  
+def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_feature_name, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, sgf_poly_order, sgf_periods, style_apply, style_show):  
     if style_apply is None:
         style_apply = {}
     if style_show is None:
@@ -616,7 +616,9 @@ def update_style_buttons(n_clicks, dataset_name, v2, method, v4, pca_feature_nam
         
     df = table_data.ALL_DATASETS[dataset_name]
     
-    if pca_feature_name in list(df.columns):
+    remaining_features = list(set(df.columns) - set(features))
+    
+    if method == TRANSFORMATIONS_TS[2] and pca_feature_name in remaining_features:
         return dash.no_update
     
     # change button style
