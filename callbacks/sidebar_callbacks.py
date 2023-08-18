@@ -88,6 +88,16 @@ def render_page_content(pathname):
         return on, off, off, off, off, off, off
 
 
-
+@app.callback(Output("button_sc", 'disabled'),
+              Output("button_sr", 'disabled'),
+              Input('dropdown_transformation_time_series_dataset', 'options'),
+)
+def load_data(options):
+    if len(options) < 1:
+        disabled = True
+    else:
+        disabled = False
+    return disabled, disabled    
+       
         
         

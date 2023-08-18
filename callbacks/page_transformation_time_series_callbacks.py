@@ -33,7 +33,6 @@ from methods.util import remove_item_if_exist
     State("modal_transformation_time_series_delete_dataset", "is_open"),
 )
 def toggle_deletion_modal(n_clicks1, n_clicks2, is_open):
-    print('test')
     if n_clicks1 is None or n_clicks1 == 0:
         return dash.no_update
     

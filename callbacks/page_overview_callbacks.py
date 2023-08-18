@@ -208,9 +208,11 @@ def delete_feature(previous, current, histogram_values, histogram_index_value, l
     categorical_disabled = len(cat_cols) == 0
     na_disabled = len(nan_cols) == 0 or len(cat_cols) > 0
     rest_disabled = len(nan_cols) > 0 != [] or len(cat_cols) > 0
+    
+    training_disabled = True
         
         
-    return value_shape, value_memory, value_na, value_num, histogram_options, histogram_values, histogram_index_options, histogram_index_value, linegraph_options, linegraph_values, linegraph_index_options, linegraph_index_value, scatter_options, scatter1_value, scatter_options, scatter2_value, heat_map_options, heatmap_value, options_cat, value_cat, figure_cat, figure_num_na, figure_heatmap_na, options_na, na_value, max_nearest_features, iterative_n_nearest_features, marks, figure_violin, data_outlier, figure_outlier, options_num, outlier_kv_feature, options_transformation, value_transformation, categorical_disabled, na_disabled, rest_disabled, rest_disabled, rest_disabled, rest_disabled, rest_disabled
+    return value_shape, value_memory, value_na, value_num, histogram_options, histogram_values, histogram_index_options, histogram_index_value, linegraph_options, linegraph_values, linegraph_index_options, linegraph_index_value, scatter_options, scatter1_value, scatter_options, scatter2_value, heat_map_options, heatmap_value, options_cat, value_cat, figure_cat, figure_num_na, figure_heatmap_na, options_na, na_value, max_nearest_features, iterative_n_nearest_features, marks, figure_violin, data_outlier, figure_outlier, options_num, outlier_kv_feature, options_transformation, value_transformation, categorical_disabled, na_disabled, rest_disabled, rest_disabled, training_disabled, training_disabled, training_disabled
 
     
 # update the histogram and update the rangeslider in the histogram board according to the dropdown

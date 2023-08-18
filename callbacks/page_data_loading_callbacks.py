@@ -115,6 +115,7 @@ def load_data(n_clicks, contents, filename, datatype, sep, index):
     na_disabled = len(nan_cols) == 0 or len(cat_cols) > 0
     rest_disabled = len(nan_cols) > 0 != [] or len(cat_cols) > 0
         
+    training_disabled = True    
         
-    return False, False, data_datatable_overview, overview_disabled, categorical_disabled, na_disabled, rest_disabled, rest_disabled, rest_disabled, rest_disabled, rest_disabled
+    return False, False, data_datatable_overview, overview_disabled, categorical_disabled, na_disabled, rest_disabled, rest_disabled, training_disabled, training_disabled, training_disabled
 
