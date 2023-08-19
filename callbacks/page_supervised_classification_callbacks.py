@@ -157,6 +157,36 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
     
     return style_apply, style_show
 
+# update summary
+@app.callback(
+    Output("analysis_classification_summary", "figure"),
+    Output("input_classification_model_name", "value"),
+    Input("button_classification_apply", "n_clicks"),
+    State("input_classification_model_name", "value"),
+    State("dropdown_classification_model", "value"),
+    State("dropdown_classification_scoring", "value"),
+)
+def update_classification_summary(n_clicks, model_name, model, scoring):
+    if n_clicks is None or n_clicks == 0:
+        return dash.no_update
+    
+    # get current result
+    global CURR_RESULT, RESULTS, CLASSFIER_COUNT
+    curr_score = CURR_RESULT[1]
+
+    # update all results
+    row = pd.DataFrame({'Model': model_name, 'Score': curr_score}, index=[0])
+    RESULTS = pd.concat([row,RESULTS.loc[:]]).reset_index(drop=True)
+    
+    # update figure
+    figure = get_summary_plot(RESULTS)
+    
+    CLASSFIER_COUNT[model] += 1 
+    
+    model_name = model + " " + str(CLASSFIER_COUNT[model]) + " " + scoring
+
+    return figure, model_name
+
 # apply classifier
 @app.callback(
     Output("alert_classification_invalid_splits", "is_open"),
@@ -254,35 +284,22 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
  
     return False, False, False, dash.no_update, False, graph
 
-# update summary
+
+
+# update model name
 @app.callback(
-    Output("analysis_classification_summary", "figure"),
     Output("input_classification_model_name", "value"),
-    Input("button_classification_apply", "n_clicks"),
-    State("input_classification_model_name", "value"),
-    State("dropdown_classification_model", "value"),
-    State("dropdown_classification_scoring", "value"),
+    Input("dropdown_classification_model", "value"),
+    Input("dropdown_classification_scoring", "value"),
 )
-def update_classification_summary(n_clicks, model_name, model, scoring):
-    if n_clicks is None or n_clicks == 0:
-        return dash.no_update
+def update_update_model_name(model, scoring):
     
     # get current result
-    global CURR_RESULT, RESULTS, CLASSFIER_COUNT
-    curr_score = CURR_RESULT[1]
-
-    # update all results
-    row = pd.DataFrame({'Model': model_name, 'Score': curr_score}, index=[0])
-    RESULTS = pd.concat([row,RESULTS.loc[:]]).reset_index(drop=True)
-    
-    # update figure
-    figure = get_summary_plot(RESULTS)
-    
-    CLASSFIER_COUNT[model] += 1 
+    global CLASSFIER_COUNT
     
     model_name = model + " " + str(CLASSFIER_COUNT[model]) + " " + scoring
 
-    return figure, model_name
+    return model_name
 
 # update after selected dataset changes
 @app.callback(

@@ -134,6 +134,36 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v
         style_apply['display'] = 'none'  
     return style_apply, style_show
 
+# update summary
+@app.callback(
+    Output("analysis_regression_summary", "figure"),
+    Output("input_regression_model_name", "value"),
+    Input("button_regression_apply", "n_clicks"),
+    State("input_regression_model_name", "value"),
+    State("dropdown_regression_model", "value"),
+    State("dropdown_regression_scoring", "value"),
+)
+def update_regression_summary(n_clicks, model_name, model, scoring):
+    if n_clicks is None or n_clicks == 0:
+        return dash.no_update
+    
+    # get current result
+    global CURR_RESULT, RESULTS
+    curr_score = CURR_RESULT[1]
+    
+    # update all results
+    row = pd.DataFrame({'Model': model_name, 'Score': curr_score}, index=[0])
+    RESULTS = pd.concat([row,RESULTS.loc[:]]).reset_index(drop=True)
+    
+    # update figure
+    figure = get_summary_plot(RESULTS)
+
+    REGRESSOR_COUNT[model] += 1 
+    
+    model_name = model + " " + str(REGRESSOR_COUNT[model]) + " " + scoring
+
+    return figure, model_name
+
 # apply regressor
 @app.callback(
     Output("alert_regression", "children"),
@@ -217,35 +247,22 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
  
     return dash.no_update, False, graph
 
-# update summary
+
+
+# update model name
 @app.callback(
-    Output("analysis_regression_summary", "figure"),
     Output("input_regression_model_name", "value"),
-    Input("button_regression_apply", "n_clicks"),
-    State("input_regression_model_name", "value"),
-    State("dropdown_regression_model", "value"),
-    State("dropdown_regression_scoring", "value"),
+    Input("dropdown_regression_model", "value"),
+    Input("dropdown_regression_scoring", "value"),
 )
-def update_regression_summary(n_clicks, model_name, model, scoring):
-    if n_clicks is None or n_clicks == 0:
-        return dash.no_update
+def update_update_model_name(model, scoring):
     
     # get current result
-    global CURR_RESULT, RESULTS
-    curr_score = CURR_RESULT[1]
-    
-    # update all results
-    row = pd.DataFrame({'Model': model_name, 'Score': curr_score}, index=[0])
-    RESULTS = pd.concat([row,RESULTS.loc[:]]).reset_index(drop=True)
-    
-    # update figure
-    figure = get_summary_plot(RESULTS)
-
-    REGRESSOR_COUNT[model] += 1 
+    global CLASSFIER_COUNT
     
     model_name = model + " " + str(REGRESSOR_COUNT[model]) + " " + scoring
 
-    return figure, model_name
+    return model_name
 
 # update after selected dataset changes
 @app.callback(

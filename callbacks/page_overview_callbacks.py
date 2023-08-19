@@ -24,6 +24,9 @@ from methods.util import remove_item_if_exist, is_close
 # import state management
 from states.states import *
 
+# import slider marks
+from view.page_helper_components.sliders import get_slider_marks
+
 # update after feature removal
 @app.callback(
     # update textboard
@@ -113,6 +116,7 @@ def delete_feature(previous, current, histogram_values, histogram_index_value, l
     # update_options
     options_all = list(table_data.DF_RAW.columns)
     options_num = list(table_data.DF_RAW.select_dtypes(include=NUMERICS).columns)
+    options_int = list(table_data.DF_RAW.select_dtypes(include=INTEGER).columns)
         
     
     # update textboard
@@ -123,15 +127,15 @@ def delete_feature(previous, current, histogram_values, histogram_index_value, l
         
     # update histogram
     histogram_options = options_all
-    histogram_index_options = options_num
+    histogram_index_options = options_int
     histogram_values = histogram_options[:3]
-    histogram_index_value = options_num[0]
+    histogram_index_value = options_int[0]
             
     # update linegraph
     linegraph_options = options_all
-    linegraph_index_options = options_num
+    linegraph_index_options = options_int
     linegraph_values = linegraph_options[:3]
-    linegraph_index_value = options_num[0]
+    linegraph_index_value = options_int[0]
         
     # update scatter plot
     scatter_options = options_num
@@ -182,7 +186,7 @@ def delete_feature(previous, current, histogram_values, histogram_index_value, l
     
     # update datatable
     data_outlier = []
-    if row is not None and outlier_kv_feature == row:
+    if row is not None and outlier_kv_feature == row or outlier_kv_feature is None:
         outlier_kv_feature = options_num[0]
     
     # update figure
@@ -244,7 +248,9 @@ def update_histogram_figure_under_constraint(cols, options, col_index, values, m
         value_min = values[0]
         value_max = values[1]
     else:
-        value_min, value_max, curr_min, curr_max, marks, values = get_marks_for_rangeslider(table_data.DF_RAW, col_index)
+        value_min, value_max, curr_min, curr_max, _, values = get_marks_for_rangeslider(table_data.DF_RAW, col_index)
+        
+    marks = get_slider_marks((curr_min, curr_max))
     
     df =  compute_plot(table_data.DF_RAW, col_index, cols, value_min, value_max)
     # draw Figure
@@ -281,7 +287,9 @@ def update_line_plot_under_constraint(cols, options, col_index, values, marks, c
         value_min = values[0]
         value_max = values[1]
     else:
-        value_min, value_max, curr_min, curr_max, marks, values = get_marks_for_rangeslider(table_data.DF_RAW, col_index)
+        value_min, value_max, curr_min, curr_max, _, values = get_marks_for_rangeslider(table_data.DF_RAW, col_index)
+        
+    marks = get_slider_marks((curr_min, curr_max))
     
     df = compute_plot(table_data.DF_RAW, col_index, cols, value_min, value_max, reset_index=True)
     # draw Figure
@@ -317,7 +325,9 @@ def update_scatter_figure_under_constraint(col1, col2, values, marks, curr_min, 
         value_min = values[0]
         value_max = values[1]
     else:
-        value_min, value_max, curr_min, curr_max, marks, values = get_marks_for_rangeslider(table_data.DF_RAW, col1)
+        value_min, value_max, curr_min, curr_max, _, values = get_marks_for_rangeslider(table_data.DF_RAW, col1)
+        
+    marks = get_slider_marks((curr_min, curr_max))
     
     df = compute_scatter(table_data.DF_RAW, col1, value_min, value_max)
     figure = get_overview_scatter_plot(df, col1, col2)

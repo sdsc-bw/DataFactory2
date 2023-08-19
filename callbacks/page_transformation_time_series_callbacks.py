@@ -290,7 +290,7 @@ def delete_feature(previous, current, dataset_name, value_overview, value_parame
 def update_after_dataset_changes(dataset_name):
     if dataset_name is None or dataset_name == '':
         return dash.no_update
-    
+
     df = table_data.ALL_DATASETS[dataset_name]
     
     # update datatable
@@ -541,9 +541,9 @@ def update_sgf_polyorder(polyorder, periods):
     Output("dropdown_classification_dataset", "value"),    
     Output("dropdown_regression_dataset", "options"),
     Output("dropdown_regression_dataset", "value"), 
-    Output("rangeslider_transformation_time_series_overview", "min"),
-    Output("rangeslider_transformation_time_series_overview", "max"),    
-    Output("rangeslider_transformation_time_series_overview", "value"),
+    #Output("rangeslider_transformation_time_series_overview", "min"),
+    #Output("rangeslider_transformation_time_series_overview", "max"),    
+    #Output("rangeslider_transformation_time_series_overview", "value"),
     Input("dropdown_transformation_time_series_dataset", "options"),
     State("dropdown_classification_dataset", "value"), 
     State("dropdown_regression_dataset", "value")
@@ -568,7 +568,7 @@ def update_after_dataset_changes(datasets, dataset_name_classification, dataset_
     value_range = table_data.ALL_RANGES[dataset_name_classification]
     
     
-    return options, dataset_name_classification, options, dataset_name_regression, min_range, max_range, value_range
+    return options, dataset_name_classification, options, dataset_name_regression#, min_range, max_range, value_range
 
 # update button styles
 @app.callback(

@@ -6,6 +6,7 @@ import re
 # import data
 from data import table_data
 
+INTEGER = ['int16', 'int32', 'int64']
 NUMERICS = ['int16', 'int32', 'int64', 'float16', 'float32', 'float64']
 OVERVIEW_COLUMNS = ['features', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', '%NA', 'datatype', 'unique', 'top', 'freq']
 

@@ -22,6 +22,9 @@ from methods.data_exploration.analyse import *
 # import figures
 from view.page_helper_components.plots import get_numeric_categorical_ratio_plot, get_categorical_feature_pie_plot
 
+# import slider marks
+from view.page_helper_components.sliders import get_slider_marks
+
 # Define the page layout
 def create_data_overview_panel():
     return html.Div(
@@ -133,6 +136,8 @@ def generate_histogram_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, tit
         min_first_num = 0
         max_first_num = 1
         
+    marks = get_slider_marks((min_first_num, max_first_num))
+        
     layout = dbc.Col(
         dbc.Card(
             [
@@ -170,7 +175,7 @@ def generate_histogram_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, tit
                                             id = id_slider,
                                             min= min_first_num,
                                             max= max_first_num,
-                                            marks = {i: {'label': str(round(i))} for i in np.arange(min_first_num, max_first_num, (max_first_num-min_first_num)/5)},
+                                            marks = marks,
                                             tooltip={"placement": "top", "always_visible": False},
                                             value=[min_first_num, max_first_num],
                                         ),

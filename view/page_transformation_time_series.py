@@ -29,6 +29,8 @@ from states.states import *
 # import plots
 from view.page_helper_components.plots import *
 
+# import slider marks
+from view.page_helper_components.sliders import get_slider_marks
 
 def create_data_transformation_time_series_layout():
     # create layout
@@ -95,6 +97,7 @@ def create_container_for_overview():
     # disabled 
     disabled = len(datasets) < 2
  
+    marks = get_slider_marks((min_value, max_value))
     
     layout = dbc.Card(
         [
@@ -127,7 +130,9 @@ def create_container_for_overview():
                                     min=min_value,
                                     max=max_value,
                                     tooltip={"placement": "top", "always_visible": False},
+                                    marks=marks,
                                     value=value,
+                                    step=1,
                                 ),
                             ],
                                 width=9
