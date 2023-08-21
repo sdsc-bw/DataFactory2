@@ -168,6 +168,84 @@ def update_regression_summary(n_clicks, model_name, model, scoring):
 @app.callback(
     Output("alert_regression", "children"),
     Output("alert_regression", "is_open"),
+    Output("loading_regression_prediction", "children"),
+    Input("button_regression_show", "n_clicks"),
+    # general
+    State("dropdown_regression_dataset", "value"),
+    State("dropdown_regression_target", "value"),
+    State("slider_regression_train_test_split", "value"),
+    State("dropdown_regression_model", "value"),
+    State("checklist_regression_time_series_crossvalidation", "value"),
+    State("dropdown_regression_scoring", "value"),
+    # baseline
+    State("dropdown_regression_baseline_strategy", "value"),
+    State("input_regression_baseline_constant", "value"),
+    # random forest
+    State("slider_regression_random_forest_n_estimators", "value"),
+    State("slider_regression_random_forest_criterion", "value"),
+    State("slider_regression_random_forest_max_depth", "value"),
+    State("slider_regression_random_forest_warm_start", "value"),
+    # xgboost
+    State("slider_regression_xgboost_n_estimators", "value"),
+    State("slider_regression_xgboost_max_depth", "value"),
+    State("slider_regression_xgboost_learning_rate", "value"),
+)
+def update_current_prediction(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+    if n_clicks is None or n_clicks == 0:
+        return dash.no_update
+    # read out parameter
+    params = {}
+    if model == REGRESSOR[0]: # baseline
+        params['strategy'] = REGRESSOR_BASELINE_STRATEGY[baseline_strategy]
+        if baseline_strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[3]:
+            params['constant'] = baseline_constant
+    elif model == REGRESSOR[1]: # linear
+        pass
+    elif model == REGRESSOR[2]: # random forest
+        params['n_estimators'] = rf_n_estimators
+        params['criterion'] = REGRESSOR_RF_CRITERION[rf_criterion]
+        params['warm_start'] = rf_warm_start
+        if rf_max_depth == 36:
+            params['max_depth'] = None
+        else:
+            params['max_depth'] = rf_max_depth
+    elif model == REGRESSOR[3]: # xgboost
+        params['n_estimators'] = xgb_n_estimators
+        params['learning_rate'] = xgb_learning_rate
+        if xgb_max_depth == 36:
+            params['max_depth'] = None
+        else:
+            params['max_depth'] = xgb_max_depth
+           
+    df = table_data.ALL_DATASETS[dataset_name]
+    
+    # use data between defined ranges
+    min_index = table_data.ALL_RANGES[dataset_name][0]
+    max_index = table_data.ALL_RANGES[dataset_name][1]
+    df = df.loc[min_index:max_index].copy()
+    
+    if len(ts_cross_val) == 0:
+        ts_cross_val = False
+    else:
+        ts_cross_val = True
+    
+    try:
+        y_train, y_train_pred, y_test, y_test_pred = apply_regressor_prediction(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val)
+    except ValueError as e:
+        print(e)
+        alert = True
+        alert_str = str(e)
+        return alert_str, alert, dash.no_update
+    
+    figure = get_prediction_plot(y_train, y_train_pred, y_test, y_test_pred, title="Original Data vs Predictions")
+    graph = dcc.Graph(id="figure_regression_prediction", className='graph_categorical', figure=figure)
+ 
+    return dash.no_update, False, graph
+
+# apply regressor
+@app.callback(
+    Output("alert_regression", "children"),
+    Output("alert_regression", "is_open"),
     Output("loading_regression_preview", "children"),
     Input("button_regression_show", "n_clicks"),
     # general

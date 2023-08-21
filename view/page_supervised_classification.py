@@ -48,12 +48,30 @@ def create_data_supervised_panel():
                         [
                             dbc.Row(
                                 [
+                                    
                                     create_result_plot(),
                                     create_container_for_parameter(),
                                 ],
                                 align = "start",
                                 justify = 'center',
                             ),
+                        ],
+                    ),
+                ],
+                className='card_container'
+            ),
+            
+            dbc.Card(
+                [
+                    dbc.CardHeader(
+                        [
+                            "Prediction"
+                        ],
+                        className='card_header'
+                    ),
+                    dbc.CardBody(
+                        [
+                            create_prediction_plot(),
                         ],
                     ),
                 ],
@@ -96,6 +114,31 @@ def create_result_plot():
         ),
         
         width=8
+    )
+            
+
+    return layout
+
+# current result
+def create_prediction_plot():
+
+    layout = dbc.Col( 
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    dcc.Loading(
+                        id="loading_classification_prediction",
+                        type="default",
+                        children=dcc.Graph(id="figure_classification_prediction",
+                              className='graph_categorical',
+                             )
+                    )
+                    
+                ]
+            )
+        ),
+        
+        width=12
     )
             
 
@@ -157,6 +200,12 @@ def create_container_for_parameter():
                                 step=0.1,
                                 value=0.8,
                                 id='slider_classification_train_test_split',
+                            ),
+                            
+                            html.Img(id='img_classification_time_series_crossvalidation', src="/assets/img/tooltip.png", className='tooltip_img'),
+                            dbc.Tooltip(
+                                "If checked it keeps the order of the datapoints, otherwise it shuffles the dataset.",
+                                target='img_classification_time_series_crossvalidation', 
                             ),
                             
                             dcc.Checklist(

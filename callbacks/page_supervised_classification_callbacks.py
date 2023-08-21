@@ -194,6 +194,100 @@ def update_classification_summary(n_clicks, model_name, model, scoring):
     Output("alert_classification_invalid_neighbors", "is_open"),
     Output("alert_classification", "children"),
     Output("alert_classification", "is_open"),
+    Output("loading_classification_prediction", "children"),
+    Input("button_classification_show", "n_clicks"),
+    # general
+    State("dropdown_classification_dataset", "value"),
+    State("dropdown_classification_target", "value"),
+    State("slider_classification_train_test_split", "value"),
+    State("dropdown_classification_model", "value"),
+    State("checklist_classification_time_series_crossvalidation", "value"),
+    State("dropdown_classification_scoring", "value"),
+    # baseline
+    State("dropdown_classification_baseline_strategy", "value"),
+    State("input_classification_baseline_constant", "value"),
+    # knn
+    State("slider_classification_knn_n_neighbors", "value"),
+    State("dropdown_classification_knn_algorithm", "value"),
+    State("dropdown_classification_knn_weights", "value"),
+    # random forest
+    State("slider_classification_random_forest_n_estimators", "value"),
+    State("slider_classification_random_forest_criterion", "value"),
+    State("slider_classification_random_forest_max_depth", "value"),
+    State("slider_classification_random_forest_warm_start", "value"),
+    # xgboost
+    State("slider_classification_xgboost_n_estimators", "value"),
+    State("slider_classification_xgboost_max_depth", "value"),
+    State("slider_classification_xgboost_learning_rate", "value"),
+)
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+    if n_clicks is None or n_clicks == 0:
+        return dash.no_update
+    # read out parameter
+    params = {}
+    if model == CLASSFIER[0]: # baseline
+        params['strategy'] = CLASSIFIER_BASELINE_STRATEGY[baseline_strategy]
+        if baseline_strategy == list(CLASSIFIER_BASELINE_STRATEGY.keys())[3]:
+            params['constant'] = baseline_constant
+    elif model == CLASSFIER[1]: # knn
+        params['n_neighbors'] = knn_n_neighbors
+        params['algorithm'] = CLASSIFIER_KNN_ALGORITHM[knn_algorithm]
+        params['weights'] = CLASSIFIER_KNN_WEIGHTS[knn_weights]
+    elif model == CLASSFIER[2]: # random forest
+        params['n_estimators'] = rf_n_estimators
+        params['criterion'] = CLASSIFIER_RF_CRITERION[rf_criterion]
+        params['warm_start'] = rf_warm_start
+        if rf_max_depth == 36:
+            params['max_depth'] = None
+        else:
+            params['max_depth'] = rf_max_depth
+    elif model == CLASSFIER[3]: # xgboost
+        params['n_estimators'] = xgb_n_estimators
+        params['learning_rate'] = xgb_learning_rate
+        if xgb_max_depth == 36:
+            params['max_depth'] = None
+        else:
+            params['max_depth'] = xgb_max_depth
+           
+    df = table_data.ALL_DATASETS[dataset_name]
+    
+    # use data between defined ranges
+    min_index = table_data.ALL_RANGES[dataset_name][0]
+    max_index = table_data.ALL_RANGES[dataset_name][1]
+    df = df.loc[min_index:max_index].copy()
+    
+    try:
+        y_train, y_train_pred, y_test, y_test_pred = apply_classifier_prediction(df, target, train_test_split, model, params, ts_cross_val=ts_cross_val)
+    except ValueError as e:
+        print(e)
+        alert_splits = False
+        alert_missing_classes = False
+        alert_neighbors = False
+        alert_str = str(e)
+        alert = False
+        if alert_str.startswith('n_splits='):
+            alert_splits = True
+        elif alert_str.startswith('Expected n_neighbors'):
+            alert_neighbors = True
+        elif "fits failed with the following error" in alert_str:
+            alert_missing_classes = True
+        else:
+            alert = True
+            
+        return alert_splits, alert_missing_classes, alert_neighbors, alert_str, alert, dash.no_update
+    
+    figure =  get_prediction_plot(y_train, y_train_pred, y_test, y_test_pred, title="Original Data vs Predictions")
+    graph = dcc.Graph(id="figure_classification_prediction", className='graph_categorical', figure=figure)
+    
+    return False, False, False, dash.no_update, False, graph
+
+# apply classifier
+@app.callback(
+    Output("alert_classification_invalid_splits", "is_open"),
+    Output("alert_classification_missing_classes", "is_open"),
+    Output("alert_classification_invalid_neighbors", "is_open"),
+    Output("alert_classification", "children"),
+    Output("alert_classification", "is_open"),
     Output("loading_classification_preview", "children"),
     Input("button_classification_show", "n_clicks"),
     # general

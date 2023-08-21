@@ -199,6 +199,43 @@ def get_outlier_plot(df):
     figure = px.scatter(df, x = "x", y = "y", color="Is Outlier")
     return figure
 
+def get_prediction_plot(y_train, y_train_pred, y_test, y_test_pred, title="Original Data vs Predictions"):
+    # Create a figure
+    figure = go.Figure()
+
+    # Plot y_train and y_train_pred with similar color but different brightness
+    figure.add_trace(go.Scatter(x=list(range(len(y_train))),
+                             y=y_train,
+                             mode='lines',
+                             name='y_train',
+                             line=dict(color='rgb(31, 119, 180)')))
+
+    figure.add_trace(go.Scatter(x=list(range(len(y_train_pred))),
+                             y=y_train_pred,
+                             mode='lines',
+                             name='y_train_pred',
+                             line=dict(color='rgb(255, 127, 14)')))
+
+    # Plot y_test and y_test_pred with similar color but different brightness
+    figure.add_trace(go.Scatter(x=list(range(len(y_train), len(y_train) + len(y_test))),
+                             y=y_test,
+                             mode='lines',
+                             name='y_test',
+                             line=dict(color='rgb(140, 186, 230)')))
+
+    figure.add_trace(go.Scatter(x=list(range(len(y_train_pred), len(y_train_pred) + len(y_test_pred))),
+                             y=y_test_pred,
+                             mode='lines',
+                             name='y_test_pred',
+                             line=dict(color='rgb(255, 187, 120)')))
+
+    # Update layout
+    figure.update_layout(title=title,
+                      xaxis_title='Index',
+                      yaxis_title='Target Value')
+    
+    return figure
+
 def get_cross_validation_plot(df, title="Results Cross Validation Scoring"):
     figure = px.bar(df, x="Fold", y="Score", title=title)
     return figure

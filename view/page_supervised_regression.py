@@ -59,6 +59,22 @@ def create_data_supervised_panel():
                 ],
                 className='card_container'
             ),
+            dbc.Card(
+                [
+                    dbc.CardHeader(
+                        [
+                            "Prediction"
+                        ],
+                        className='card_header'
+                    ),
+                    dbc.CardBody(
+                        [
+                            create_prediction_plot(),
+                        ],
+                    ),
+                ],
+                className='card_container'
+            ),
         ]
     )
 
@@ -96,6 +112,31 @@ def create_result_plot():
         ),
         
         width=8
+    )
+            
+
+    return layout
+
+# current result
+def create_prediction_plot():
+
+    layout = dbc.Col( 
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    dcc.Loading(
+                        id="loading_regression_prediction",
+                        type="default",
+                        children=dcc.Graph(id="figure_regression_prediction",
+                              className='graph_categorical',
+                             )
+                    )
+                    
+                ]
+            )
+        ),
+        
+        width=12
     )
             
 
@@ -159,6 +200,12 @@ def create_container_for_parameter():
                                 id='slider_regression_train_test_split',
                             ),
                             
+                            html.Img(id='img_regression_time_series_crossvalidation', src="/assets/img/tooltip.png", className='tooltip_img'),
+                            dbc.Tooltip(
+                                "If checked it keeps the order of the datapoints, otherwise it shuffles the dataset.",
+                                target='img_regression_time_series_crossvalidation', 
+                            ),
+                            
                             dcc.Checklist(
                                 id='checklist_regression_time_series_crossvalidation',
                                 options=['Use time series cross validation'],
@@ -167,7 +214,9 @@ def create_container_for_parameter():
                                     "margin-right": "0.5rem",
                                     "margin-top": "2rem",
                                 },
-                            )
+                            ),
+                            
+                            
                         ],),
                     ],
                         className='card_subcontainer',

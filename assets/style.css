@@ -1,3 +1,10 @@
+.no-gutters .col {
+    padding-right: 0;
+    padding-left: 0;
+    margin-right: 0;
+    margin-left: 0;
+}
+
 .tooltip_img{
     height: 2.5rem;
     width: 2.5rem;
@@ -98,6 +105,10 @@
 
 .card_container {
     margin-bottom: 1rem;
+}
+
+.large_card_container {
+    margin-bottom: 10rem;
 }
 
 .card_body_container {
@@ -345,4 +356,9 @@
 .btn_aligned_right {
     display: flex;
     justify-content: center;
+}
+
+.no-gutters > [class*='col-'] {
+    padding-right: 0;
+    padding-left: 0;
 }
