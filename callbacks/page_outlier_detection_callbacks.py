@@ -77,7 +77,6 @@ def update_style_kv(method, style):
     Input("button_outlier_show", "n_clicks"),
     Input("button_outlier_apply", "n_clicks"),
     Input("dropdown_outlier_method", "value"),
-    Input("check_outlier_random_forest_warm_start", "value"),
     Input("slider_outlier_random_forest_n_estimators", "value"),
     Input("slider_outlier_densitiy_n_neighbors", "value"),
     Input("dropdown_outlier_densitiy_algorithm", "value"),
@@ -85,7 +84,7 @@ def update_style_kv(method, style):
     State("button_outlier_apply", "style"),
     State("button_outlier_show", "style")
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, style_apply, style_show):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, style_apply, style_show):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
@@ -111,21 +110,19 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, style_app
     Output("table_outlier_detection", "selected_rows"),
     Input("button_outlier_show", "n_clicks"),
     State("dropdown_outlier_method", "value"),
-    State("check_outlier_random_forest_warm_start", "value"),
     State("slider_outlier_random_forest_n_estimators", "value"),
     State("slider_outlier_densitiy_n_neighbors", "value"),
     State("dropdown_outlier_densitiy_algorithm", "value"),
     State("dropdown_outlier_kv_feature", "value"),
     State("table_outlier_detection", "data"),
 )
-def update_outlier_plot(n_clicks, method, rf_warm_start, rf_n_estimators, densitiy_n_neighbors, densitiy_algorithm, kv_feature, data):
+def update_outlier_plot(n_clicks, method, rf_n_estimators, densitiy_n_neighbors, densitiy_algorithm, kv_feature, data):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
     params = {}
     if method == OUTLIER_DETECTION_METHODS[0]: # isolation forest detector
         params['n_estimators'] = rf_n_estimators
-        params['warm_start'] = rf_warm_start
     elif method == OUTLIER_DETECTION_METHODS[1]: # density detector
         params['n_neighbors'] = densitiy_n_neighbors
         params['algorithm'] = OUTLIER_DETECTION_LOCAL_ALGORITHM[densitiy_algorithm]
@@ -161,7 +158,6 @@ def update_outlier_plot(n_clicks, method, rf_warm_start, rf_n_estimators, densit
     # inputes
     Input("button_outlier_apply", "n_clicks"),
     State("dropdown_outlier_method", "value"),
-    State("check_outlier_random_forest_warm_start", "value"),
     State("slider_outlier_random_forest_n_estimators", "value"),
     State("slider_outlier_densitiy_n_neighbors", "value"),
     State("dropdown_outlier_densitiy_algorithm", "value"),
@@ -169,14 +165,13 @@ def update_outlier_plot(n_clicks, method, rf_warm_start, rf_n_estimators, densit
     State("table_outlier_detection", "data"), 
     State("table_outlier_detection", "selected_rows"),
 )
-def update_outlier_df(n_clicks, method, rf_warm_start, rf_n_estimators, densitiy_n_neighbors, densitiy_algorithm, kv_feature, data, selected_rows):
+def update_outlier_df(n_clicks, method, rf_n_estimators, densitiy_n_neighbors, densitiy_algorithm, kv_feature, data, selected_rows):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
     params = {}
     if method == OUTLIER_DETECTION_METHODS[0]: # isolation forest detector
         params['n_estimators'] = rf_n_estimators
-        params['warm_start'] = rf_warm_start
     elif method == OUTLIER_DETECTION_METHODS[1]: # density detector
         params['n_neighbors'] = densitiy_n_neighbors
         params['algorithm'] = OUTLIER_DETECTION_LOCAL_ALGORITHM[densitiy_algorithm]

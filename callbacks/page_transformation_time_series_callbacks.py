@@ -177,16 +177,19 @@ def add_dataset(n_clicks, is_open, dataset_name):
     Input("button_transformation_time_series_show", "n_clicks"),
     State("dropdown_transformation_time_series_feature_transformation", "value"),
     State("input_transformation_time_series_pca_feature_name", "value"),
+    State("input_transformation_time_series_dwt_feature_name", "value"),
     State("dropdown_transformation_time_series_dataset", "value"),
 )
-def toggle_feature_alert(n_clicks, method, feature_name, dataset_name):
+def toggle_feature_alert(n_clicks, method, pca_feature_name, dwt_feature_name, dataset_name):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     
     df = table_data.ALL_DATASETS[dataset_name]
     
-    #if method == TRANSFORMATIONS_TS[2] and feature_name in list(df.columns):
-    #    return True
+    if method == TRANSFORMATIONS_TS[2] and pca_feature_name in list(df.columns):
+        return True
+    if method == TRANSFORMATIONS_TS[3] and dwt_feature_name in list(df.columns):
+        return True
     
     return False
 
@@ -399,6 +402,18 @@ def update_style_pca_components(value):
     return max_n_components, feature_name
 
 @app.callback(
+    Output("input_transformation_time_series_dwt_feature_name", "value"),
+    Input("dropdown_transformation_time_series_features", "value"),
+)
+def update_style_pca_components(value):
+    if value is None or value == "":
+        return dash.no_update
+    
+    feature_name = '_'.join(value)
+    
+    return feature_name
+
+@app.callback(
     Output("slider_transformation_time_series_dwt_vanishing_moments", "min"),
     Input("dropdown_transformation_time_series_dwt_wavelet", "value")
 )
@@ -580,6 +595,7 @@ def update_after_dataset_changes(datasets, dataset_name_classification, dataset_
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
     Input("slider_transformation_time_series_pca_n_components", "value"),
     Input("input_transformation_time_series_pca_feature_name", "value"),
+    Input("input_transformation_time_series_dwt_feature_name", "value"),
     Input("dropdown_transformation_time_series_dwt_wavelet", "value"),
     Input("slider_transformation_time_series_dwt_mode", "value"),
     Input("slider_transformation_time_series_dwt_level", "value"),
@@ -596,7 +612,7 @@ def update_after_dataset_changes(datasets, dataset_name_classification, dataset_
     State("button_transformation_time_series_apply", "style"),
     State("button_transformation_time_series_show", "style")
 )
-def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_feature_name, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, sgf_poly_order, sgf_periods, style_apply, style_show):  
+def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_feature_name, dwt_feature_name, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, sgf_poly_order, sgf_periods, style_apply, style_show):  
     if style_apply is None:
         style_apply = {}
     if style_show is None:
@@ -649,6 +665,7 @@ def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_featu
     State("slider_transformation_time_series_dwt_mode", "value"),
     State("slider_transformation_time_series_dwt_level", "value"),
     State("slider_transformation_time_series_dwt_vanishing_moments", "value"),
+    State("input_transformation_time_series_dwt_feature_name", "value"),
     State('slider_transformation_time_series_shift_steps', 'value'),
     State('checklist_transformation_time_series_shift_multi', 'value'),
     State('dropdown_transformation_time_series_sw_operations', 'value'),
@@ -657,7 +674,7 @@ def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_featu
     State('slider_transformation_time_series_sgf_polyorder', 'value'),
     State('slider_transformation_time_series_sgf_periods', 'value'),
 )
-def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, pca_feature_name, dwt_wavelet, dwt_mode, dwt_level, dwt_vanishing_moments, shift_steps, shift_multi, sw_operations, sw_periods, diff_periods, sgf_poly_order, sgf_periods):
+def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, pca_feature_name, dwt_wavelet, dwt_mode, dwt_level, dwt_vanishing_moments, dwt_feature_name, shift_steps, shift_multi, sw_operations, sw_periods, diff_periods, sgf_poly_order, sgf_periods):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     
@@ -680,6 +697,7 @@ def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, 
         params['mode'] = WAVELET_MODES[dwt_mode]
         params['level'] = dwt_level
         params['wavelet'] = WAVELETS[dwt_wavelet]
+        params['feature_name'] = dwt_feature_name
         if dwt_wavelet != list(WAVELETS.keys())[3]:
             params['n'] = dwt_vanishing_moments
     elif method == TRANSFORMATIONS_TS[5]: # shift      
@@ -725,6 +743,7 @@ def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, 
     State("slider_transformation_time_series_dwt_mode", "value"),
     State("slider_transformation_time_series_dwt_level", "value"),
     State("slider_transformation_time_series_dwt_vanishing_moments", "value"),
+    State("input_transformation_time_series_dwt_feature_name", "value"),
     State('slider_transformation_time_series_shift_steps', 'value'),
     State('checklist_transformation_time_series_shift_multi', 'value'),
     State('dropdown_transformation_time_series_sw_operations', 'value'),
@@ -734,7 +753,7 @@ def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, 
     State('slider_transformation_time_series_sgf_periods', 'value'),
     State("dropdown_transformation_time_series_overview_feature", "value"),
 )
-def update_overview(n_clicks, dataset_name, cols, method, pca_n_components, pca_feature_name, dwt_wavelet, dwt_mode, dwt_level, dwt_vanishing_moments, shift_steps, shift_multi, sw_operations, sw_periods, diff_periods, sgf_poly_order, sgf_periods, value_overview):
+def update_overview(n_clicks, dataset_name, cols, method, pca_n_components, pca_feature_name, dwt_wavelet, dwt_mode, dwt_level, dwt_vanishing_moments, dwt_feature_name, shift_steps, shift_multi, sw_operations, sw_periods, diff_periods, sgf_poly_order, sgf_periods, value_overview):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     
@@ -747,6 +766,7 @@ def update_overview(n_clicks, dataset_name, cols, method, pca_n_components, pca_
         params['mode'] = WAVELET_MODES[dwt_mode]
         params['level'] = dwt_level
         params['wavelet'] = WAVELETS[dwt_wavelet]
+        params['feature_name'] = dwt_feature_name
         if dwt_wavelet != list(WAVELETS.keys())[3]:
             params['n'] = dwt_vanishing_moments
     elif method == TRANSFORMATIONS_TS[5]: # shift      

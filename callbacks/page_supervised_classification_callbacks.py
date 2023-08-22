@@ -125,7 +125,6 @@ def update_style_xgboost(method, style):
     Input("slider_classification_random_forest_n_estimators", "value"),
     Input("slider_classification_random_forest_criterion", "value"),
     Input("slider_classification_random_forest_max_depth", "value"),
-    Input("slider_classification_random_forest_warm_start", "value"),
     # xgboost
     Input("slider_classification_xgboost_n_estimators", "value"),
     Input("slider_classification_xgboost_max_depth", "value"),
@@ -138,7 +137,7 @@ def update_style_xgboost(method, style):
     Input("alert_classification_invalid_neighbors", "is_open"),
     Input("alert_classification", "is_open"),
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes, is_open_invalid_neighbors, is_open_alert):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes, is_open_invalid_neighbors, is_open_alert):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
@@ -214,13 +213,12 @@ def update_classification_summary(n_clicks, model_name, model, scoring):
     State("slider_classification_random_forest_n_estimators", "value"),
     State("slider_classification_random_forest_criterion", "value"),
     State("slider_classification_random_forest_max_depth", "value"),
-    State("slider_classification_random_forest_warm_start", "value"),
     # xgboost
     State("slider_classification_xgboost_n_estimators", "value"),
     State("slider_classification_xgboost_max_depth", "value"),
     State("slider_classification_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -236,7 +234,6 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     elif model == CLASSFIER[2]: # random forest
         params['n_estimators'] = rf_n_estimators
         params['criterion'] = CLASSIFIER_RF_CRITERION[rf_criterion]
-        params['warm_start'] = rf_warm_start
         if rf_max_depth == 36:
             params['max_depth'] = None
         else:
@@ -308,13 +305,12 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     State("slider_classification_random_forest_n_estimators", "value"),
     State("slider_classification_random_forest_criterion", "value"),
     State("slider_classification_random_forest_max_depth", "value"),
-    State("slider_classification_random_forest_warm_start", "value"),
     # xgboost
     State("slider_classification_xgboost_n_estimators", "value"),
     State("slider_classification_xgboost_max_depth", "value"),
     State("slider_classification_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -330,7 +326,6 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     elif model == CLASSFIER[2]: # random forest
         params['n_estimators'] = rf_n_estimators
         params['criterion'] = CLASSIFIER_RF_CRITERION[rf_criterion]
-        params['warm_start'] = rf_warm_start
         if rf_max_depth == 36:
             params['max_depth'] = None
         else:

@@ -161,7 +161,7 @@ def apply_pca(df, cols, params):
     pca_data = pca.fit_transform(df[cols])
 
     # Convert the PCA data to a pandas dataframe
-    new_cols = [f'{feature_name}_'+str(i+1) for i in range(pca_data.shape[1])]
+    new_cols = [f'{feature_name}_' + str(i+1) for i in range(pca_data.shape[1])]
     pca_df = pd.DataFrame(pca_data, columns=new_cols, index=df.index)
 
     # Add the remaining columns to the PCA dataframe
@@ -186,6 +186,7 @@ def apply_dwt(df, cols, params):
     wavelet = params['wavelet']
     level = params['level']
     mode = params['mode']
+    feature_name = params['feature_name']
 
     # Parse wavelet family and parameters
     if wavelet != list(WAVELETS.values())[3]:
@@ -206,7 +207,7 @@ def apply_dwt(df, cols, params):
     # Create new columns for each coefficient of the wavelet transform
     new_cols = []
     for i in range(len(flattened_transform[0])):
-        col_name = f'{wavelet}_coeff_{i}_lvl{level}'
+        col_name = f'{feature_name}_{wavelet}_coeff_{i}_lvl{level}'
         transformed_col = [row[i] for row in flattened_transform]
         df[col_name] = transformed_col
         new_cols.append(col_name)
@@ -389,7 +390,6 @@ def apply_differencing(df, cols, params):
     
     # Iterate over each column in the dataframe
     for col in cols:
-        
         # Apply the specified operations to the column using a rolling window
         windowed_df[f'{col}_diff'] = df[col].diff(periods=window_size)
     
@@ -398,6 +398,9 @@ def apply_differencing(df, cols, params):
     windowed_df = pd.concat([windowed_df, df], axis=1)
     
     windowed_df = windowed_df.drop(cols, axis=1)
+    
+    windowed_df = windowed_df.fillna(method='backfill')
+    windowed_df = windowed_df.fillna(method='ffill')
     
     return windowed_df, new_cols
 
@@ -443,6 +446,7 @@ def apply_shifting(df, cols, params):
     # Create a new dataframe with the shifted columns added
     shifted_df = pd.DataFrame(shifted_columns, index=df.index)
     shifted_df = shifted_df.fillna(method='backfill')
+    shifted_df = shifted_df.fillna(method='ffill')
     
     # get new_cols
     new_cols = compare_lists(list(df.columns), list(shifted_df.columns))

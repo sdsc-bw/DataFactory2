@@ -515,6 +515,7 @@ def create_container_for_dwt_parameter():
             add_container_for_mode('container_transformation_time_series_dwt_mode', 'slider_transformation_time_series_dwt_mode'),
             add_container_for_level('container_transformation_time_series_dwt_level', 'slider_transformation_time_series_dwt_level'),
             add_container_for_vanishing_moments('container_transformation_time_series_dwt_vanishing_moments', 'slider_transformation_time_series_dwt_vanishing_moments'),
+            add_container_for_feature_name('container_transformation_time_series_dwt_feature_name', 'input_transformation_time_series_dwt_feature_name')
         ],
         style={'display': 'block'},
         id='container_transformation_time_series_dwt'
@@ -639,7 +640,7 @@ def create_container_for_shifting_parameter():
 
 def add_container_for_steps(id_container, id_slider):
     layout = dbc.Card([
-        dbc.CardHeader("Number of Steps:", className='card_subheader'),
+        dbc.CardHeader("Look Backs:", className='card_subheader'),
         dbc.CardBody([
              dcc.Slider(
                  id=id_slider, 
@@ -671,8 +672,8 @@ def add_container_for_multi_shift(id_container, id_checklist):
                  },
              )
         ],
-            
         ),
+        
     ],
         className='card_subcontainer',
         id=id_container,
@@ -751,12 +752,18 @@ def create_container_for_differencing_parameter():
 
 def add_container_for_diff_periods(id_container, id_slider):
     layout = dbc.Card([
-        dbc.CardHeader("Periods:", className='card_subheader'),
+        
+        dbc.CardHeader([
+            "Periods:",
+            html.Img(id='img_transformation_time_series_diff_periods', src="/assets/img/tooltip.png", className='tooltip_img'),
+            dbc.Tooltip("Calculates the difference of a datapoint compared with another datapoint. A positive period compares it with the previous datapoint, a negative with the following datapoint. E.g. Period = 3 computes the difference with 3rd previous datapoint.", target='img_transformation_time_series_diff_periods'),
+        ]
+            , className='card_subheader'),
         dbc.CardBody([
              dcc.Slider(
                  id=id_slider, 
-                 min=1,
-                 max=20,
+                 min=-10,
+                 max=10,
                  step=1,
                  value=1,
                  tooltip={"placement": "top", "always_visible": False},

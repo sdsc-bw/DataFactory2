@@ -449,7 +449,7 @@ def create_container_for_random_forest():
             add_container_for_n_estimators('container_classification_random_forest_n_estimators', 'slider_classification_random_forest_n_estimators'),
             add_container_for_criterion('container_classification_random_forest_criterion', 'slider_classification_random_forest_criterion'),
             add_container_for_max_depth('container_classification_random_forest_max_depth', 'slider_classification_random_forest_max_depth'),
-            add_container_for_warm_start('container_classification_random_forest_warm_start', 'slider_classification_random_forest_warm_start'),
+            #add_container_for_warm_start('container_classification_random_forest_warm_start', 'slider_classification_random_forest_warm_start'),
         ],
         style={'display': 'none'},
         id='container_classification_random_forest'

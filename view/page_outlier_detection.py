@@ -180,7 +180,7 @@ def create_container_for_parameter():
 def create_container_for_random_forest_detector():
     layout = html.Div(
         [
-            add_container_for_warm_start('container_outlier_random_forest_warm_start', 'check_outlier_random_forest_warm_start'),
+            #add_container_for_warm_start('container_outlier_random_forest_warm_start', 'check_outlier_random_forest_warm_start'),
             add_container_for_n_estimators('container_outlier_random_forest_n_estimators', 'slider_outlier_random_forest_n_estimators'),
         ],
         style={'display': 'block'},
