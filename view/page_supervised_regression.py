@@ -298,6 +298,7 @@ def create_container_for_baseline():
     layout = html.Div(
         [
             add_container_for_strategy('container_regression_baseline_strategy', 'dropdown_regression_baseline_strategy'),
+            add_container_for_quantile('container_regression_baseline_quantile', 'input_regression_baseline_quantile'),
             add_container_for_constant('container_regression_baseline_constant', 'input_regression_baseline_constant'),
         ],
         style={'display': 'block'},
@@ -338,6 +339,44 @@ def add_container_for_constant(id_container, id_input):
                 className='dropdown_overview_multi_feature',
                 required=True,
                 type='number',
+            ),
+        ],
+            
+        ),
+    ],
+        className='card_subcontainer',
+        style={'display': 'none'},
+        id=id_container,
+    )
+        
+    return layout
+
+def add_container_for_quantile(id_container, id_slider):
+    layout = dbc.Card([
+        html.Img(id='img_regression_baseline_quantile', src="/assets/img/tooltip.png", className='tooltip_img'),
+            dbc.Tooltip("A quantile of 0.5 corresponds to the median, while 0.0 to the minimum and 1.0 to the maximum.", target='img_regression_baseline_quantile'),
+        dbc.CardHeader("Quantile:", className='card_subheader'),
+        dbc.CardBody([
+            dcc.Slider(
+                id=id_slider,
+                min=0.0,
+                max=1.0,
+                step=0.05,
+                value=0.5,
+                marks={
+                    0:"0.0",
+                    0.1:"0.1",
+                    0.2:"0.2",
+                    0.3:"0.3",
+                    0.4:"0.4",
+                    0.5:"0.5",
+                    0.6:"0.6",
+                    0.7:"0.7",
+                    0.8:"0.8",
+                    0.9:"0.9",
+                    1:"1.0",
+                },
+                tooltip={"placement": "bottom", "always_visible": False}
             ),
         ],
             

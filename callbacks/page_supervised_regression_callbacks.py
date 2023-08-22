@@ -49,7 +49,22 @@ def update_style_baseline(method, style):
 def update_style_baseline_constant(method, strategy, style):
     if style is None:
         style = {}
-    if method == CLASSFIER[0] and strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[3]:
+    if method == REGRESSOR[0] and strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[3]:
+        style['display'] = 'block'
+    else:
+        style['display'] = 'none'        
+    return style
+
+@app.callback(
+    Output("container_regression_baseline_quantile", "style"),
+    Input("dropdown_regression_model", "value"),
+    Input("dropdown_regression_baseline_strategy", "value"),
+    State("container_regression_baseline_quantile", "style")
+)
+def update_style_baseline_quantile(method, strategy, style):
+    if style is None:
+        style = {}
+    if method == REGRESSOR[0] and strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[2]:
         style['display'] = 'block'
     else:
         style['display'] = 'none'        
@@ -102,6 +117,7 @@ def update_style_xgboost(method, style):
     # baseline
     Input("dropdown_regression_baseline_strategy", "value"),
     Input("input_regression_baseline_constant", "value"),
+    Input("input_regression_baseline_quantile", "value"),
     # random forest
     Input("slider_regression_random_forest_n_estimators", "value"),
     Input("slider_regression_random_forest_criterion", "value"),
@@ -116,7 +132,7 @@ def update_style_xgboost(method, style):
     State("button_regression_apply", "style"),
     State("button_regression_show", "style")
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, is_open_alert, style_apply, style_show):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, is_open_alert, style_apply, style_show):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
@@ -180,6 +196,7 @@ def update_regression_summary(n_clicks, model_name, model, scoring):
     # baseline
     State("dropdown_regression_baseline_strategy", "value"),
     State("input_regression_baseline_constant", "value"),
+    State("input_regression_baseline_quantile", "value"),
     # random forest
     State("slider_regression_random_forest_n_estimators", "value"),
     State("slider_regression_random_forest_criterion", "value"),
@@ -190,7 +207,7 @@ def update_regression_summary(n_clicks, model_name, model, scoring):
     State("slider_regression_xgboost_max_depth", "value"),
     State("slider_regression_xgboost_learning_rate", "value"),
 )
-def update_current_prediction(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_prediction(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, baseline_quantile, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -199,6 +216,8 @@ def update_current_prediction(n_clicks, dataset_name, target, train_test_split, 
         params['strategy'] = REGRESSOR_BASELINE_STRATEGY[baseline_strategy]
         if baseline_strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[3]:
             params['constant'] = baseline_constant
+        elif baseline_strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[2]:
+            params['quantile'] = baseline_quantile
     elif model == REGRESSOR[1]: # linear
         pass
     elif model == REGRESSOR[2]: # random forest
@@ -258,6 +277,7 @@ def update_current_prediction(n_clicks, dataset_name, target, train_test_split, 
     # baseline
     State("dropdown_regression_baseline_strategy", "value"),
     State("input_regression_baseline_constant", "value"),
+    State("input_regression_baseline_quantile", "value"),
     # random forest
     State("slider_regression_random_forest_n_estimators", "value"),
     State("slider_regression_random_forest_criterion", "value"),
@@ -268,7 +288,7 @@ def update_current_prediction(n_clicks, dataset_name, target, train_test_split, 
     State("slider_regression_xgboost_max_depth", "value"),
     State("slider_regression_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, baseline_quantile, rf_n_estimators, rf_criterion, rf_max_depth, rf_warm_start, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -277,6 +297,8 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
         params['strategy'] = REGRESSOR_BASELINE_STRATEGY[baseline_strategy]
         if baseline_strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[3]:
             params['constant'] = baseline_constant
+        elif baseline_strategy == list(REGRESSOR_BASELINE_STRATEGY.keys())[2]:
+            params['quantile'] = baseline_quantile
     elif model == REGRESSOR[1]: # linear
         pass
     elif model == REGRESSOR[2]: # random forest
