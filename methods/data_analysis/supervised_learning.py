@@ -8,13 +8,15 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import cross_val_score, TimeSeriesSplit
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_squared_error, r2_score, explained_variance_score, accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score
+from sklearn.model_selection import KFold
 
 
 CLASSFIER = ["Baseline", "KNN", "Random Forest", "Gradient Boosting"]
 REGRESSOR = ["Baseline", "Linear", "Random Forest", "Gradient Boosting"]
 
-CLASSIFIER_BASELINE_STRATEGY = {"Prior": "prior", "Most Frequent": "most_frequent", "Stratified": "stratified", "Constant": "constant"}
-REGRESSOR_BASELINE_STRATEGY = {"Mean": "mean", "Median": "median", "Quantile": "quantile", "Constant": "constant"}
+CLASSIFIER_BASELINE_STRATEGY = {"Prior": "prior", "Most Frequent": "most_frequent", "Stratified": "stratified", "Constant": "constant", "Look Back": "look_back"}
+REGRESSOR_BASELINE_STRATEGY = {"Mean": "mean", "Median": "median", "Quantile": "quantile", "Constant": "constant", "Look Back": "look_back"}
 
 CLASSIFIER_KNN_ALGORITHM = {"Auto": "auto", "Ball Tree": "ball_tree", "KD Tree": "kd_tree", "Brute": "brute"}
 CLASSIFIER_KNN_WEIGHTS =  {'Uniform': 'uniform', 'Distance': 'distance'}
@@ -35,21 +37,28 @@ def apply_classifier_prediction(df, target, train_size, model, params, ts_cross_
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_size, random_state=42, shuffle=not ts_cross_val)
     
     # initialize classifier
-    if model == CLASSFIER[0]:
-        clf = DummyClassifier(**params)
-    elif model == CLASSFIER[1]:
-        clf = KNeighborsClassifier(**params)
-    elif model == CLASSFIER[2]:
-        clf = RandomForestClassifier(**params)        
-    elif model == CLASSFIER[3]:
-        clf = XGBClassifier(**params)
-    else:
-        print(f"Unknown model: {model}")
+    if 'look_back' in list(params.keys()):
+        look_back = params['look_back']
+        y_train_pred = compute_median_previous_n(y_train, look_back)
+        y_test_pred = compute_median_previous_n(y_test, look_back)
         
-    clf.fit(X_train, y_train)
-    
-    y_train_pred = clf.predict(X_train)
-    y_test_pred = clf.predict(X_test)
+        assert len(y_train_pred) == len(y_train)
+        assert len(y_test_pred) == len(y_test)
+        
+    else:
+        if model == CLASSFIER[0]:
+            clf = DummyClassifier(**params)
+        elif model == CLASSFIER[1]:
+            clf = KNeighborsClassifier(**params)
+        elif model == CLASSFIER[2]:
+            clf = RandomForestClassifier(**params)        
+        elif model == CLASSFIER[3]:
+            clf = XGBClassifier(**params)
+        
+        clf.fit(X_train, y_train)
+
+        y_train_pred = clf.predict(X_train)
+        y_test_pred = clf.predict(X_test)
     
         
     return y_train, y_train_pred, y_test, y_test_pred
@@ -67,28 +76,43 @@ def apply_classifier(df, target, train_size, model, params, ts_cross_val=False, 
         cv = 2
     
     # initialize classifier
-    if model == CLASSFIER[0]:
-        clf = DummyClassifier(**params)
-    elif model == CLASSFIER[1]:
-        clf = KNeighborsClassifier(**params)
-    elif model == CLASSFIER[2]:
-        clf = RandomForestClassifier(**params)        
-    elif model == CLASSFIER[3]:
-        clf = XGBClassifier(**params)
+    if 'look_back' in list(params.keys()):
+        look_back = params['look_back']
+        y_pred = compute_median_previous_n(y, look_back)
+
+        assert len(y) == len(y_pred)
+        
+        # simulate cross validation
+        scores = []
+        kf = KFold(n_splits=cv)
+        for train_indices, test_indices in kf.split(X):
+            y_split = y[test_indices]
+            y_pred_split = y_pred[test_indices]
+            scores.append(score_prediction(y_split, y_pred_split, scoring))
+            
+        scores = pd.DataFrame({'Fold': range(1, len(scores) + 1), 'Score': scores})
+
     else:
-        print(f"Unknown model: {model}")
-        
-    # evalutate classifier
-    if ts_cross_val:
-        scores = time_series_cross_val(X, y, cv, clf, scoring=scoring)
-    else: 
-        scores = cross_val(X, y, cv, clf, scoring=scoring)
-        
-    if scores.isna().any().any():
-        if df[target].nunique() != 2 and (scoring == 'f1' or  scoring == 'precision' or  scoring == 'recall'):
-            raise ValueError("Target is multiclass but scoring is 'Binary'. Please choose another scoring.")
-        else:   
-            raise ValueError("Target contains invalid values. Please check your target.")
+        if model == CLASSFIER[0]:
+            clf = DummyClassifier(**params)
+        elif model == CLASSFIER[1]:
+            clf = KNeighborsClassifier(**params)
+        elif model == CLASSFIER[2]:
+            clf = RandomForestClassifier(**params)        
+        elif model == CLASSFIER[3]:
+            clf = XGBClassifier(**params)
+
+        # evalutate classifier
+        if ts_cross_val:
+            scores = time_series_cross_val(X, y, cv, clf, scoring=scoring)
+        else: 
+            scores = cross_val(X, y, cv, clf, scoring=scoring)
+
+        if scores.isna().any().any():
+            if df[target].nunique() != 2 and (scoring == 'f1' or  scoring == 'precision' or  scoring == 'recall'):
+                raise ValueError("Target is multiclass but scoring is 'Binary'. Please choose another scoring.")
+            else:   
+                raise ValueError("Target contains invalid values. Please check your target.")
     
     return scores
 
@@ -101,20 +125,29 @@ def apply_regressor_prediction(df, target, train_size, model, params, ts_cross_v
     
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=1 - train_size, random_state=42, shuffle=not ts_cross_val)
     
-    # initialize classifier
-    if model == REGRESSOR[0]:
-        reg = DummyRegressor(**params)
-    elif model == REGRESSOR[1]:
-        reg = LinearRegression(**params)
-    elif model == REGRESSOR[2]:
-        reg = RandomForestRegressor(**params)        
-    elif model == REGRESSOR[3]:
-        reg = XGBRegressor(**params)
+    # initialize regressor
+    if 'look_back' in list(params.keys()):
+        look_back = params['look_back']
+        y_train_pred = compute_mean_previous_n(y_train, look_back)
+        y_test_pred = compute_mean_previous_n(y_test, look_back)
         
-    reg.fit(X_train, y_train)
-    
-    y_train_pred = reg.predict(X_train)
-    y_test_pred = reg.predict(X_test)
+        assert len(y_train_pred) == len(y_train)
+        assert len(y_test_pred) == len(y_test)
+        
+    else:
+        if model == REGRESSOR[0]:
+            reg = DummyRegressor(**params)
+        elif model == REGRESSOR[1]:
+            reg = LinearRegression(**params)
+        elif model == REGRESSOR[2]:
+            reg = RandomForestRegressor(**params)        
+        elif model == REGRESSOR[3]:
+            reg = XGBRegressor(**params)
+
+        reg.fit(X_train, y_train)
+
+        y_train_pred = reg.predict(X_train)
+        y_test_pred = reg.predict(X_test)
     
         
     return y_train, y_train_pred, y_test, y_test_pred
@@ -132,26 +165,41 @@ def apply_regressor(df, target, train_size, model, params, ts_cross_val=False, s
     if cv < 2:
         cv = 2
     
-    # initialize classifier
-    if model == REGRESSOR[0]:
-        reg = DummyRegressor(**params)
-    elif model == REGRESSOR[1]:
-        reg = LinearRegression(**params)
-    elif model == REGRESSOR[2]:
-        reg = RandomForestRegressor(**params)        
-    elif model == REGRESSOR[3]:
-        reg = XGBRegressor(**params)
+    # initialize regressor
+    if 'look_back' in list(params.keys()):
+        look_back = params['look_back']
+        y_pred = compute_mean_previous_n(y, look_back)
+
+        assert len(y) == len(y_pred)
+        
+        # simulate cross validation
+        scores = []
+        kf = KFold(n_splits=cv)
+        for train_indices, test_indices in kf.split(X):
+            y_split = y[test_indices]
+            y_pred_split = y_pred[test_indices]
+            scores.append(score_prediction(y_split, y_pred_split, scoring))
+            
+        scores = pd.DataFrame({'Fold': range(1, len(scores) + 1), 'Score': scores})
+
     else:
-        print(f"Unknown model: {model}")
-        
-    # evalutate classifier
-    if ts_cross_val:
-        scores = time_series_cross_val(X, y, cv, reg, scoring=scoring)
-    else: 
-        scores = cross_val(X, y, cv, reg, scoring=scoring)
-        
-    if scores.isna().any().any():
-        raise ValueError("Target contains invalid values. Please check your target.")
+        if model == REGRESSOR[0]:
+            reg = DummyRegressor(**params)
+        elif model == REGRESSOR[1]:
+            reg = LinearRegression(**params)
+        elif model == REGRESSOR[2]:
+            reg = RandomForestRegressor(**params)        
+        elif model == REGRESSOR[3]:
+            reg = XGBRegressor(**params)
+
+        # evalutate classifier
+        if ts_cross_val:
+            scores = time_series_cross_val(X, y, cv, reg, scoring=scoring)
+        else: 
+            scores = cross_val(X, y, cv, reg, scoring=scoring)
+
+        if scores.isna().any().any():
+            raise ValueError("Target contains invalid values. Please check your target.")
     
     return scores
                          
@@ -194,5 +242,90 @@ def time_series_cross_val(X, y, cv, model, scoring):
     df_scores = pd.DataFrame({'Fold': range(1, len(scores) + 1), 'Score': scores})
 
     return df_scores
-    
+
+
+def compute_mean_previous_n(lst, n):
+    result = []
+    total_sum = 0.0
+
+    for i, value in enumerate(lst):
+        if n == 1:
+            if i == 0:
+                result.append(0.0)
+            else:
+                result.append(lst[i - 1])
+        else:
+            if i < n:
+                total_sum += value
+                mean = total_sum / (i + 1)
+            else:
+                total_sum += value - lst[i - n]
+                mean = total_sum / n
+            result.append(mean)
+
+    result = np.array(result)    
         
+    return result    
+
+def compute_median_previous_n(lst, n):
+    result = []
+
+    for i, value in enumerate(lst):
+        if n == 1:
+            if i == 0:
+                result.append(0)  # Assuming input and output values are integers
+            else:
+                result.append(lst[i - 1])
+        else:
+            if i < n:
+                result.append(np.median(lst[:i + 1]))
+            else:
+                result.append(np.median(lst[i - n + 1:i + 1]))
+
+    result = np.array(result)
+        
+    return result
+        
+def score_prediction(y, y_pred, scoring):
+    if scoring == 'accuracy':
+        score = accuracy_score(y, y_pred)
+    elif scoring == 'balanced_accuracy':
+        score = balanced_accuracy_score(y, y_pred)
+    elif scoring == 'f1':
+        score = f1_score(y, y_pred, average="binary")
+    elif scoring == 'f1_micro':
+        score = f1_score(y, y_pred, average="micro")
+    elif scoring == 'f1_macro':
+        score = f1_score(y, y_pred, average="macro")
+    elif scoring == 'f1_weighted':
+        score = f1_score(y, y_pred, average="weighted")
+    elif scoring == 'precision':
+        score = precision_score(y, y_pred, average="binary")
+    elif scoring == 'precision_micro':
+        score = precision_score(y, y_pred, average="micro")
+    elif scoring == 'precision_macro':
+        score = precision_score(y, y_pred, average="macro")
+    elif scoring == 'precision_weighted':
+        score = precision_score(y, y_pred, average="weighted")
+    elif scoring == 'recall':
+        score = recall_score(y, y_pred, average="binary")
+    elif scoring == 'recall_micro':
+        score = recall_score(y, y_pred, average="micro")
+    elif scoring == 'recall_macro':
+        score = recall_score(y, y_pred, average="macro")
+    elif scoring == 'recall_weighted':
+        score = recall_score(y, y_pred, average="weighted")
+    elif scoring == 'neg_mean_absolute_error':
+        score = mean_absolute_error(y, y_pred)
+    elif scoring == 'neg_mean_squared_error':
+        score = mean_squared_error(y, y_pred)
+    elif scoring == 'rmse':
+        score = mean_squared_error(y, y_pred, squared=False)
+    elif scoring == 'r2':
+        score = r2_score(y, y_pred)
+    elif scoring == 'explained_variance':
+        score = explained_variance_score(y, y_pred)
+    else:
+        raise ValueError(f"Unknown scoring metric: {scoring}")
+        
+    return score

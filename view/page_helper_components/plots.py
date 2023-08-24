@@ -207,26 +207,26 @@ def get_prediction_plot(y_train, y_train_pred, y_test, y_test_pred, title="Origi
     figure.add_trace(go.Scatter(x=list(range(len(y_train))),
                              y=y_train,
                              mode='lines',
-                             name='y_train',
+                             name='Original Trainingsdata',
                              line=dict(color='rgb(31, 119, 180)')))
 
     figure.add_trace(go.Scatter(x=list(range(len(y_train_pred))),
                              y=y_train_pred,
                              mode='lines',
-                             name='y_train_pred',
+                             name='Predicted Trainingsdata',
                              line=dict(color='rgb(255, 127, 14)')))
 
     # Plot y_test and y_test_pred with similar color but different brightness
     figure.add_trace(go.Scatter(x=list(range(len(y_train), len(y_train) + len(y_test))),
                              y=y_test,
                              mode='lines',
-                             name='y_test',
+                             name='Original Testdata',
                              line=dict(color='rgb(140, 186, 230)')))
 
     figure.add_trace(go.Scatter(x=list(range(len(y_train_pred), len(y_train_pred) + len(y_test_pred))),
                              y=y_test_pred,
                              mode='lines',
-                             name='y_test_pred',
+                             name='Predicted Testdata',
                              line=dict(color='rgb(255, 187, 120)')))
 
     # Update layout

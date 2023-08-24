@@ -72,7 +72,6 @@ def analyse_numeric_data(df):
     # select only numeric data    
     cols = df.select_dtypes(include=NUMERICS).columns
     df = df[cols]
-    
     if len(cols) == 0:
         return pd.DataFrame([], columns=['features', 'count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', '%NA', 'datatype', 'unique', 'top', 'freq'])
     
@@ -82,7 +81,7 @@ def analyse_numeric_data(df):
     description['%NA'] = get_percentage_nan(df).values
     description['datatype'] = get_dtypes(df).values 
     description['unique'] = df.nunique().values
-    description['top'] = df.apply(lambda x: x.mode().values[0]).values
+    description['top'] = df.apply(lambda x: x.mode().values[0] if len(x.mode().values) > 0 else None).values
     description['freq'] = df.apply(lambda x: x.value_counts().max()).values 
     
     # rename index column

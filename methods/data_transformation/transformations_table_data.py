@@ -106,6 +106,9 @@ def apply_normalization(df, cols=None):
     unselected_columns = [col for col in df.columns if col not in cols]
     normalized_df = pd.concat([df[unselected_columns], normalized], axis=1)
     
+    normalized_df = normalized_df.fillna(method='backfill')
+    normalized_df = normalized_df.fillna(method='ffill')
+    
     return normalized_df, cols
 
 def apply_standardization(df, cols):
@@ -135,6 +138,9 @@ def apply_standardization(df, cols):
     # Concatenate the standardized columns with the unselected columns
     unselected_columns = [col for col in df.columns if col not in cols]
     standardized_df = pd.concat([df[unselected_columns], standardized], axis=1)
+    
+    standardized_df = standardized_df.fillna(method='backfill')
+    standardized_df = standardized_df.fillna(method='ffill')
     
     return standardized_df, cols
 
@@ -167,6 +173,9 @@ def apply_pca(df, cols, params):
     # Add the remaining columns to the PCA dataframe
     remaining_columns = [col for col in df.columns if col not in cols]
     pca_df = pd.concat([pca_df, df[remaining_columns]], axis=1)
+    
+    pca_df = pca_df.fillna(method='backfill')
+    pca_df = pca_df.fillna(method='ffill')
 
     # Return the PCA dataframe
     return pca_df, new_cols
@@ -214,6 +223,9 @@ def apply_dwt(df, cols, params):
 
     # Drop the original columns
     df = df.drop(cols, axis=1)
+    
+    df = df.fillna(method='backfill')
+    df = df.fillna(method='ffill')
 
     return df, new_cols
 
@@ -242,6 +254,9 @@ def apply_dft(df, cols):
     # Add the remaining columns to the PCA dataframe
     remaining_columns = [col for col in df.columns if col not in cols]
     transformed = pd.concat([transformed, df[remaining_columns]], axis=1)
+    
+    transformed = transformed.fillna(method='backfill')
+    transformed = transformed.fillna(method='ffill')
 
     return transformed, new_cols
 
@@ -277,6 +292,9 @@ def apply_savitzky_golay_filter(df, cols, params):
 
         # Add all the other columns from the original dataframe to the new smoothed dataframe
         smoothed_df = pd.concat([smoothed_df, df.drop(col, axis=1)], axis=1)
+        
+    smoothed_df = smoothed_df.fillna(method='backfill')
+    smoothed_df = smoothed_df.fillna(method='ffill')
     
     return smoothed_df, cols
 
@@ -317,6 +335,9 @@ def apply_kalman_filter(df, cols):
         
     # Add all the other columns from the original dataframe to the new filtered dataframe
     filtered_df = pd.concat([filtered_df, df.drop(cols, axis=1)], axis=1)
+    
+    filtered_df = filtered_df.fillna(method='backfill')
+    filtered_df = filtered_df.fillna(method='ffill')
     
     return filtered_df, cols
 
@@ -364,6 +385,9 @@ def apply_sliding_window(df, cols, params):
     windowed_df = pd.concat([windowed_df, df], axis=1)
     
     windowed_df = windowed_df.drop(cols, axis=1)
+    
+    windowed_df = windowed_df.fillna(method='backfill')
+    windowed_df = windowed_df.fillna(method='ffill')
 
     return windowed_df, new_cols
 
@@ -445,12 +469,13 @@ def apply_shifting(df, cols, params):
     
     # Create a new dataframe with the shifted columns added
     shifted_df = pd.DataFrame(shifted_columns, index=df.index)
-    shifted_df = shifted_df.fillna(method='backfill')
-    shifted_df = shifted_df.fillna(method='ffill')
     
     # get new_cols
     new_cols = compare_lists(list(df.columns), list(shifted_df.columns))
     cols += new_cols
     cols = sorted(cols)
+    
+    shifted_df = shifted_df.fillna(method='backfill')
+    shifted_df = shifted_df.fillna(method='ffill')
     
     return shifted_df, cols

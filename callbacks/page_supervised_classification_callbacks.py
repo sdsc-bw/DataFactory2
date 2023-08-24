@@ -55,6 +55,21 @@ def update_style_baseline_constant(method, strategy, style):
         style['display'] = 'none'        
     return style
 
+@app.callback(
+    Output("container_classification_baseline_look_back", "style"),
+    Input("dropdown_classification_model", "value"),
+    Input("dropdown_classification_baseline_strategy", "value"),
+    State("container_classification_baseline_look_back", "style")
+)
+def update_style_baseline_look_back(method, strategy, style):
+    if style is None:
+        style = {}
+    if method == CLASSFIER[0] and strategy == list(CLASSIFIER_BASELINE_STRATEGY.keys())[4]:
+        style['display'] = 'block'
+    else:
+        style['display'] = 'none'        
+    return style
+
 # update knn style
 @app.callback(
     Output("container_classification_knn", "style"),
@@ -117,6 +132,7 @@ def update_style_xgboost(method, style):
     # baseline
     Input("dropdown_classification_baseline_strategy", "value"),
     Input("input_classification_baseline_constant", "value"),
+    Input("slider_classification_baseline_look_back", "value"),
     # knn
     Input("slider_classification_knn_n_neighbors", "value"),
     Input("dropdown_classification_knn_algorithm", "value"),
@@ -137,7 +153,7 @@ def update_style_xgboost(method, style):
     Input("alert_classification_invalid_neighbors", "is_open"),
     Input("alert_classification", "is_open"),
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes, is_open_invalid_neighbors, is_open_alert):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, style_apply, style_show, is_open_invalid_splits, is_open_missing_classes, is_open_invalid_neighbors, is_open_alert):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
@@ -205,6 +221,7 @@ def update_classification_summary(n_clicks, model_name, model, scoring):
     # baseline
     State("dropdown_classification_baseline_strategy", "value"),
     State("input_classification_baseline_constant", "value"),
+    State("slider_classification_baseline_look_back", "value"),
     # knn
     State("slider_classification_knn_n_neighbors", "value"),
     State("dropdown_classification_knn_algorithm", "value"),
@@ -218,7 +235,7 @@ def update_classification_summary(n_clicks, model_name, model, scoring):
     State("slider_classification_xgboost_max_depth", "value"),
     State("slider_classification_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, baseline_look_back, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -227,6 +244,8 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
         params['strategy'] = CLASSIFIER_BASELINE_STRATEGY[baseline_strategy]
         if baseline_strategy == list(CLASSIFIER_BASELINE_STRATEGY.keys())[3]:
             params['constant'] = baseline_constant
+        elif baseline_strategy == list(CLASSIFIER_BASELINE_STRATEGY.keys())[4]:
+            params['look_back'] = baseline_look_back
     elif model == CLASSFIER[1]: # knn
         params['n_neighbors'] = knn_n_neighbors
         params['algorithm'] = CLASSIFIER_KNN_ALGORITHM[knn_algorithm]
@@ -297,6 +316,7 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     # baseline
     State("dropdown_classification_baseline_strategy", "value"),
     State("input_classification_baseline_constant", "value"),
+    State("slider_classification_baseline_look_back", "value"),
     # knn
     State("slider_classification_knn_n_neighbors", "value"),
     State("dropdown_classification_knn_algorithm", "value"),
@@ -310,7 +330,7 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
     State("slider_classification_xgboost_max_depth", "value"),
     State("slider_classification_xgboost_learning_rate", "value"),
 )
-def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
+def update_current_results(n_clicks, dataset_name, target, train_test_split, model, ts_cross_val, scoring, baseline_strategy, baseline_constant, baseline_look_back, knn_n_neighbors, knn_algorithm, knn_weights, rf_n_estimators, rf_criterion, rf_max_depth, xgb_n_estimators, xgb_max_depth, xgb_learning_rate):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
@@ -319,6 +339,8 @@ def update_current_results(n_clicks, dataset_name, target, train_test_split, mod
         params['strategy'] = CLASSIFIER_BASELINE_STRATEGY[baseline_strategy]
         if baseline_strategy == list(CLASSIFIER_BASELINE_STRATEGY.keys())[3]:
             params['constant'] = baseline_constant
+        elif baseline_strategy == list(CLASSIFIER_BASELINE_STRATEGY.keys())[4]:
+            params['look_back'] = baseline_look_back
     elif model == CLASSFIER[1]: # knn
         params['n_neighbors'] = knn_n_neighbors
         params['algorithm'] = CLASSIFIER_KNN_ALGORITHM[knn_algorithm]

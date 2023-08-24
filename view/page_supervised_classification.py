@@ -300,6 +300,7 @@ def create_container_for_baseline():
         [
             add_container_for_strategy('container_classification_baseline_strategy', 'dropdown_classification_baseline_strategy'),
             add_container_for_constant('container_classification_baseline_constant', 'input_classification_baseline_constant'),
+            add_container_for_look_back('container_classification_baseline_look_back', 'slider_classification_baseline_look_back'),
         ],
         style={'display': 'block'},
         id='container_classification_baseline'
@@ -339,6 +340,31 @@ def add_container_for_constant(id_container, id_input):
                 className='dropdown_overview_multi_feature',
                 required=True,
                 type='number',
+            ),
+        ],
+            
+        ),
+    ],
+        className='card_subcontainer',
+        style={'display': 'none'},
+        id=id_container,
+    )
+        
+    return layout
+
+def add_container_for_look_back(id_container, id_slider):
+    layout = dbc.Card([
+        html.Img(id='img_classification_baseline_look_back', src="/assets/img/tooltip.png", className='tooltip_img'),
+            dbc.Tooltip("Uses the median of the previous values over the selected look back as prediction.", target='img_classification_baseline_look_back'),
+        dbc.CardHeader("Look Back:", className='card_subheader'),
+        dbc.CardBody([
+            dcc.Slider(
+                id=id_slider,
+                min=1,
+                max=20,
+                step=1,
+                value=5,
+                tooltip={"placement": "bottom", "always_visible": False}
             ),
         ],
             
