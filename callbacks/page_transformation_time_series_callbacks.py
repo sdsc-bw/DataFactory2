@@ -326,12 +326,13 @@ def update_selected_features(all_features, options):
 # update overview plot
 @app.callback(
     Output("figure_transformation_time_series_overview", "figure"),
+    Input("dropdown_transformation_time_series_overview_feature", "options"),
     Input("dropdown_transformation_time_series_overview_feature", "value"),
     Input("dropdown_transformation_time_series_plots", "value"),
     State("dropdown_transformation_time_series_dataset", "value"),
     Input("rangeslider_transformation_time_series_overview", "value"),
 )
-def update_overview_plot(cols, plot, dataset_name, values_range):
+def update_overview_plot(options, cols, plot, dataset_name, values_range):
     if cols is None or cols == "":
         return dash.no_update
     if dataset_name is None or dataset_name == '':
@@ -339,6 +340,11 @@ def update_overview_plot(cols, plot, dataset_name, values_range):
 
     value_min = values_range[0]
     value_max = values_range[1]
+
+    # update graph if featues change
+    for c in cols:
+        if c not in options:
+            cols = options[:3]
     
     df = table_data.ALL_DATASETS[dataset_name].loc[value_min:value_max]
     if plot == PLOTS[0]:
