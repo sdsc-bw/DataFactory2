@@ -10,6 +10,8 @@ from sklearn.model_selection import cross_val_score, TimeSeriesSplit
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_squared_error, r2_score, explained_variance_score, accuracy_score, balanced_accuracy_score, f1_score, precision_score, recall_score
 from sklearn.model_selection import KFold
+from sklearn.utils import shuffle
+
 
 
 CLASSFIER = ["Baseline", "KNN", "Random Forest", "Gradient Boosting"]
@@ -204,21 +206,24 @@ def apply_regressor(df, target, train_size, model, params, ts_cross_val=False, s
     return scores
                          
 def cross_val(X, y, cv, model, scoring):
+    kf = KFold(n_splits=cv, shuffle=True, random_state=42)
 
-    # Perform cross-validation and collect scores
-    if scoring == 'rmse':
-        scores = cross_val_score(model, X, y, cv=cv, scoring='neg_mean_squared_error')
-    else:
-        scores = cross_val_score(model, X, y, cv=cv, scoring=scoring)
+    scores = []
 
-    # Convert negative mean squared errors to positive 
-    if scoring == 'neg_mean_squared_error' or scoring == 'neg_mean_absolute_error':
-        scores = -scores
-    elif scoring == 'rmse':
-        scores = [(-score) ** 0.5 for score in scores]
+    for fold, (train_idx, test_idx) in enumerate(kf.split(X), start=1):
+        X_train, X_test = X[train_idx], X[test_idx]
+        y_train, y_test = y[train_idx], y[test_idx]
 
-    # Create a DataFrame with fold indices and scores
-    df_scores = pd.DataFrame({'Fold': range(1, len(scores) + 1), 'Score': scores})
+        if scoring == 'rmse':
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_test)
+            fold_score = mean_squared_error(y_test, y_pred, squared=False)
+        else:
+            fold_score = cross_val_score(model, X_train, y_train, cv=cv, scoring=scoring).mean()
+
+        scores.append(fold_score)
+
+    df_scores = pd.DataFrame({'Fold': range(1, cv + 1), 'Score': scores})
 
     return df_scores
 

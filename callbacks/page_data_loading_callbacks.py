@@ -104,7 +104,7 @@ def load_data(n_clicks, contents, filename, datatype, sep, index):
                 delete_dataset(IN_PROCESSING_DATASETNAME)
                 delete_dataset_states()
             else:
-                return [False] + [True] + 8 * [dash.no_update]
+                return [False] + [True] + 9 * [dash.no_update]
          # TODO add more datatypes
         
     cat_cols = table_data.DF_RAW.select_dtypes(include='object').columns
