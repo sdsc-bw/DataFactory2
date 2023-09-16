@@ -289,7 +289,10 @@ def update_df_after_imputing(n_clicks, col, method, simple_strategy, simple_fill
     if method == IMPUTER_METHODS[3]:
         value = col
     else:
-        value = options[0]
+        if len(options) > 0: 
+            value = options[0]
+        else:
+            value = ""
         
     max_nearest_features = len(df_num.columns)
     marks = {i: {'label': str(round(i))} for i in np.arange(1, max_nearest_features, (max_nearest_features-1)/5)}

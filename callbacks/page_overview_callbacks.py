@@ -193,7 +193,7 @@ def delete_feature(previous, current, histogram_values, histogram_index_value, l
     figure_outlier = {}
     
     # update state
-    save_dataset(table_data.DF_RAW, IN_PROCESSING_DATASETNAME, table_data.SEP)
+    #save_dataset(table_data.DF_RAW, IN_PROCESSING_DATASETNAME, table_data.SEP)
     # TODO update outlier, transformation, supervised when no cat and no nan
     if len(list(table_data.ALL_DATASETS.keys())) > 0:
         #if CLEANED_DATASETNAME not in list(table_data.ALL_DATASETS.keys()):
