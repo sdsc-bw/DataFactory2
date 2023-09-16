@@ -66,7 +66,7 @@ def delete_datset(n_clicks, is_open, dataset_name):
     del table_data.ALL_DATASETS[dataset_name]
     
     # delete dataset in files
-    save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
+    #save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
 
     # update datasets
     options_datasets = list(table_data.ALL_DATASETS.keys())
@@ -120,7 +120,7 @@ def toggle_modal(n_clicks, dataset_name):
     
     df = table_data.ALL_DATASETS[dataset_name]
     
-    save_dataset(df, dataset_name, table_data.SEP)
+    #save_dataset(df, dataset_name, table_data.SEP)
     
     return dash.no_update
 
@@ -168,7 +168,7 @@ def add_dataset(n_clicks, is_open, dataset_name):
     # update disabled button
     disabled = len(list(table_data.ALL_DATASETS.keys())) < 2
     
-    save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
+    #save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
     
     return False, is_open, options_datasets, dataset_name, new_dataset_name, options_features, value_overview, options_features, value_parameter, disabled
 
@@ -274,7 +274,7 @@ def delete_feature(previous, current, dataset_name, value_overview, value_parame
         value_target_regression = options_target_regression[0]
         
     # update states
-    save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
+    #save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
         
     return options_features, value_overview, options_features, value_parameter, options_target_classification, value_target_classification, options_target_regression, value_target_regression
 
@@ -371,7 +371,7 @@ def update_overview_plot(options, cols, plot, dataset_name, values_range):
     
     # save range
     table_data.ALL_RANGES[dataset_name] = values_range
-    save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
+    #save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
     
     return figure
 
@@ -802,7 +802,7 @@ def update_overview(n_clicks, dataset_name, cols, method, pca_n_components, pca_
     value_parameter = options_features[:3]
     
     # save changes
-    save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
+    #save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
 
     # update feature table
     data = pd.DataFrame({'Features': table_data.ALL_DATASETS[dataset_name].columns}).to_dict('records')
