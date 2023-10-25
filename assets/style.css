@@ -1,3 +1,39 @@
+.sidebar_link {
+    background-color: blue;
+    color: white;
+    text-transform: none; 
+    margin-top: 0.5rem;
+    font-size: 16pt;
+    text-decoration: none;
+    padding: 1rem;
+}
+
+.sidebar_logo {
+    width: 30rem;
+}
+
+.sidebar_hr {
+    border-width: 0.3vh;
+    width: 100%; 
+    border-color: black; 
+    border-style: solid;
+}
+
+.sidebar_nav {
+    padding: 50px 50px 50px 50px
+}
+
+.sidebar_kit {
+    width: 10rem;
+    display: flex;
+    justify-content: center
+}
+
+.sidebar_report_bugs {
+    display: flex;
+    justify-content: center
+}
+
 .no-gutters .col {
     padding-right: 0;
     padding-left: 0;
@@ -224,13 +260,13 @@
     margin-left: 1rem;
     margin-top: 3rem;
     margin-bottom: 2rem;
-    background-color: seagreen;
+    background-color: royalblue;
     color: white;
 }
 
 .btn_apply, .btn_apply:hover, .btn_apply:active, .btn_apply:focus  {
     width: 10rem; 
-    background-color: seagreen;
+    background-color: royalblue;
     color: white;
     margin-right: 1rem;
 }
@@ -241,7 +277,7 @@
     margin-left: 1rem;
     margin-top: 1rem;
     margin-bottom: 2rem;
-    background-color: seagreen;
+    background-color: royalblue;
     color: white;
 }
 
@@ -289,8 +325,39 @@
 }
 
 .dropdown_overview_single_feature {
-    width: 20rem;
+    width: 26.5rem;
     margin-right: 1rem;
+}
+
+.dropdown_overview_target {
+    width: 21rem;
+    margin-left 1rem;
+    margin-right: 1rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.dropdown_overview_target_large {
+    width: 50rem;
+    margin-left 1rem;
+    margin-right: 1rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.dropdown_overview_index {
+    display: inline-block;
+    width: 20rem;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.text_overview_index {
+    display: inline-block;
+    margin-right: 0.5rem;
+    align-items: center;
 }
 
 

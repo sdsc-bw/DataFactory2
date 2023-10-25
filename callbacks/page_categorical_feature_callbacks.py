@@ -18,18 +18,17 @@ from methods.data_exploration.analyse import *
 from methods.cleaning import delete_columns
 
 # import figures
-from view.page_helper_components.plots import get_numeric_categorical_ratio_plot, get_categorical_feature_pie_plot
+from view.page_helper_components.plots import get_numeric_categorical_ratio_plot, get_categorical_feature_pie_plot, get_overview_histogram_plot
 
 # import utility
 from methods.util import count_unique_values
 
 @app.callback(
-    Output("figure_categorical_feature_pie", "figure"),
-    Output("container_feature_encoding", "style"),
+    Output("figure_categorical_feature_pie", "figure", allow_duplicate=True),
     Input("dropdown_categorical_feature", "value"),
-    State("container_feature_encoding", "style"),
+    prevent_initial_call=True
 )
-def update_categorical_plot(col, style):
+def update_categorical_plot(col):
     if table_data.DF_RAW is None:
         return dash.no_update
     
@@ -39,39 +38,51 @@ def update_categorical_plot(col, style):
     if col is None or col == "" or triggered_id is None:
         return dash.no_update
     
-    if col not in list(df_cat.columns):
-        if style is None:
-            style = {'display': 'none'} 
-        else:
-            style['display'] = 'none' 
-        return dash.no_update, style
+    df =  compute_plot(table_data.DF_RAW, None, col, reset_index=True)
+    # draw Figure
+    figure =  get_overview_histogram_plot(df, col)
     
-    counts = count_unique_values(df_cat, col)
+    return figure
+
+@app.callback(
+    Output("container_feature_encoding", "style", allow_duplicate=True),
+    Input("dropdown_categorical_feature", "options"),
+    State("container_feature_encoding", "style"),
+    prevent_initial_call=True
+)
+def update_categorical_plot(options, style):
+    if table_data.DF_RAW is None:
+        return dash.no_update
     
-    figure = get_categorical_feature_pie_plot(counts)
+    if style is None:
+        style = {} 
+
+    if options == []:
+        style['display'] = 'none' 
     
-    return figure, style
+    return style
     
 
 @app.callback(
     # update categorical page
-    Output("alert_categorical_unconvertable_string", "is_open"),
-    Output("figure_categorical_feature_pie", "figure"),    
-    Output("dropdown_categorical_feature", "options"),
-    Output("dropdown_categorical_feature", "value"),
-    Output("dropdown_replace_value1", "options"),    
-    Output("dropdown_replace_value1", "value"),  
-    Output("dropdown_replace_value2", "options"),
-    Output("dropdown_replace_value2", "value"),
+    Output("alert_categorical_unconvertable_string", "is_open", allow_duplicate=True),
+    Output("figure_categorical_feature_pie", "figure", allow_duplicate=True),    
+    Output("dropdown_categorical_feature", "options", allow_duplicate=True),
+    Output("dropdown_categorical_feature", "value", allow_duplicate=True),
+    Output("dropdown_replace_value1", "options", allow_duplicate=True),    
+    Output("dropdown_replace_value1", "value", allow_duplicate=True),  
+    Output("dropdown_replace_value2", "options", allow_duplicate=True),
+    Output("dropdown_replace_value2", "value", allow_duplicate=True),
     # update overview page
-    Output("datatable_overview", "data"),
-    Output("datatable_overview", "columns"),
+    Output("datatable_overview", "data", allow_duplicate=True),
+    Output("datatable_overview", "columns", allow_duplicate=True),
     # inputs
     Input("button_categorical_apply", "n_clicks"),
     State("dropdown_categorical_feature", "value"),
     State("dropdown_categorical_strategy", "value"),
     State("dropdown_replace_value1", "value"),   
     State("dropdown_replace_value2", "value"),
+    prevent_initial_call=True
 )
 def update_df_after_encoding(n_clicks, col, strategy, in_str, out_str):
     if table_data.DF_RAW is None:
@@ -103,7 +114,7 @@ def update_df_after_encoding(n_clicks, col, strategy, in_str, out_str):
     # hide feature encoding when no more categorical features otherwise update parameter
     if len(options_cat) > 0:     
         # if replacement selected update dropdowns
-        if strategy == ENCODING_STRATEGIES[3]:
+        if strategy == ENCODING_STRATEGIES[4]:
             unique_values = table_data.DF_RAW[col].unique().tolist()
     
             options_replacement = unique_values
@@ -147,8 +158,9 @@ def update_df_after_encoding(n_clicks, col, strategy, in_str, out_str):
     return False, figure, options_cat, value, options_replacement, in_str, options_replacement, out_str, data_datatable_overview, columns_datatable_overview
 
 @app.callback(
-    Output("exploration_categorical_feature_ratio_bar_plot", "figure"),    
+    Output("exploration_categorical_feature_ratio_bar_plot", "figure", allow_duplicate=True),    
     Input("button_categorical_apply", "n_clicks"),
+    prevent_initial_call=True
 )
 def update_ratio(n_clicks):
     if table_data.DF_RAW is None:
@@ -161,11 +173,12 @@ def update_ratio(n_clicks):
     return figure
 
 @app.callback(
-    Output("dropdown_replace_value1", "options"),    
-    Output("dropdown_replace_value1", "value"),  
-    Output("dropdown_replace_value2", "options"),  
-    Output("dropdown_replace_value2", "value"),  
+    Output("dropdown_replace_value1", "options", allow_duplicate=True),    
+    Output("dropdown_replace_value1", "value", allow_duplicate=True),  
+    Output("dropdown_replace_value2", "options", allow_duplicate=True),  
+    Output("dropdown_replace_value2", "value", allow_duplicate=True),  
     Input("dropdown_categorical_feature", "value"),
+    prevent_initial_call=True
 )
 def update_replacement(col):
     triggered_id = ctx.triggered_id
@@ -184,17 +197,50 @@ def update_replacement(col):
     return options, value1, options, value2
 
 @app.callback(
-    Output("card_categorical_replacement", "style"),   
+    Output("card_categorical_replacement", "style", allow_duplicate=True),   
     Input("dropdown_categorical_strategy", "value"),
     State("card_categorical_replacement", "style"),   
+    prevent_initial_call=True
 )
 def update_parameter(strategy, style):
-    if strategy != ENCODING_STRATEGIES[3]:
+    if strategy != ENCODING_STRATEGIES[4]:
         style['display'] = 'none'
     else:
-        style['display'] = 'inline-block'
+        style['display'] = 'block'
     
     return style
 
+@app.callback(
+    Output("img_categorical_strategy", "src", allow_duplicate=True),  
+    Output("link_categorical_strategy", "href", allow_duplicate=True),  
+    Output("tooltip_categorical_strategy", "children", allow_duplicate=True), 
+    Input("dropdown_categorical_strategy", "value"), 
+    prevent_initial_call=True
+)
+def update_info(strategy):
+    if strategy == ENCODING_STRATEGIES[0]:
+        src = '/assets/img/link.png'
+        href = ENCODING_LINKS[0]
+        children = ENCODING_DESCRIPTIONS[0]
+    elif strategy == ENCODING_STRATEGIES[1]:
+        src = '/assets/img/link.png'
+        href = ENCODING_LINKS[1]
+        children = ENCODING_DESCRIPTIONS[1]
+    elif strategy == ENCODING_STRATEGIES[2]:
+        src = '/assets/img/link.png'
+        href = ENCODING_LINKS[2]
+        children = ENCODING_DESCRIPTIONS[2]
+    elif strategy == ENCODING_STRATEGIES[3]:
+        src = '/assets/img/tooltip.png'
+        href = ENCODING_LINKS[3]
+        children = ENCODING_DESCRIPTIONS[3]
+    elif strategy == ENCODING_STRATEGIES[4]:
+        src = '/assets/img/tooltip.png'
+        href = ENCODING_LINKS[4]
+        children = ENCODING_DESCRIPTIONS[4]
+    else:
+        return dash.no_update
+
+    return src, href, children
 
 

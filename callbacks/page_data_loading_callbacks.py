@@ -25,57 +25,68 @@ from view.app import app
 # import data
 from data import table_data
 
-@app.callback(Output('text_loading_selected_data', 'children'),
-              Output('button_load', 'disabled'),
-              Output('container_loading_table_data_parameter', 'style'),
+@app.callback(Output('text_loading_selected_data', 'children', allow_duplicate=True),
+              Output('button_load', 'disabled', allow_duplicate=True),
+              Output('container_loading_table_data_parameter', 'style', allow_duplicate=True),
+              Output('container_parameter_loading', 'style', allow_duplicate=True),
               Input('upload_data', 'contents'),
               State('upload_data', 'filename'),
               Input('dropdown_loading_datatype', 'value'),
               State('container_loading_table_data_parameter', 'style'),
+              State('container_parameter_loading', 'style'),
+              prevent_initial_call=True
 )
-def update_parameter(contents, filename, datatype, style_table_data):
+def update_parameter(contents, filename, datatype, style_table_data, style_loading_parameter):
     if style_table_data is None:
         style_table_data = {}
+        
+    if style_table_data is None:
+        style_loading_parameter = {}
     
     if contents is not None:
         if datatype == DATA_TYPES[0] or datatype == DATA_TYPES[1]:
             style_table_data['display'] = 'block'
+            
         else: 
             style_table_data['display'] = 'none'
         disabled = False
+        style_loading_parameter['display'] = 'block'
     else:
         filename = ""
         style_table_data['display'] = 'none'
         disabled = True
-    return filename, disabled, style_table_data 
+        style_loading_parameter['display'] = 'none'
+    return filename, disabled, style_table_data, style_loading_parameter
 
-@app.callback(Output('button_load', 'disabled'),
-              Output('alert_loading_files', 'is_open'),
-              Output("datatable_overview", "data"),
-              Output("button_overview", 'disabled'),
-              Output("button_categorical", 'disabled'),
-              Output("button_na_values", 'disabled'),
-              Output("button_outlier", 'disabled'),
-              Output("button_ts", 'disabled'),
-              Output("button_sc", 'disabled'),
-              Output("button_sr", 'disabled'),
-              Output("button_usl", 'disabled'),
+@app.callback(Output('button_load', 'disabled', allow_duplicate=True),
+              Output('alert_loading_files', 'is_open', allow_duplicate=True),
+              Output("datatable_overview", "data", allow_duplicate=True),
+              Output("button_overview", 'disabled', allow_duplicate=True),
+              Output("button_categorical", 'disabled', allow_duplicate=True),
+              Output("button_na_values", 'disabled', allow_duplicate=True),
+              Output("button_outlier", 'disabled', allow_duplicate=True),
+              Output("button_ts", 'disabled', allow_duplicate=True),
+              Output("button_sc", 'disabled', allow_duplicate=True),
+              Output("button_sr", 'disabled', allow_duplicate=True),
+              Output("url", "pathname", allow_duplicate=True),
               Input('button_load', 'n_clicks'),
               State('upload_data', 'contents'),
               State('upload_data', 'filename'),
               State('dropdown_loading_datatype', 'value'),
               State('dropdown_loading_table_data_seperator', 'value'),
               State('dropdown_loading_table_data_index', 'value'),
+              prevent_initial_call=True
 )
 def load_data(n_clicks, contents, filename, datatype, sep, index):
     is_open = False
     data_datatable_overview = []
     columns_datatable_overview = []
     params = {}
+    path_name = dash.no_update
     
     if n_clicks is None or n_clicks == 0:
         if table_data.DF_RAW is None:
-            return 3 * [dash.no_update] + 8 * [True]
+            return 3 * [dash.no_update] + 7 * [True] + [dash.no_update]
         else:
             cat_cols = table_data.DF_RAW.select_dtypes(include='object').columns
             nan_cols = table_data.DF_RAW.columns[table_data.DF_RAW.isna().any()].tolist()
@@ -84,7 +95,7 @@ def load_data(n_clicks, contents, filename, datatype, sep, index):
             categorical_disabled = len(cat_cols) == 0
             na_disabled = len(nan_cols) == 0 or len(cat_cols) > 0
             rest_disabled = len(nan_cols) > 0 != [] or len(cat_cols) > 0
-            return 3 * [dash.no_update] + [overview_disabled, categorical_disabled, na_disabled, rest_disabled, rest_disabled, rest_disabled, rest_disabled, rest_disabled]
+            return 3 * [dash.no_update] + [overview_disabled, categorical_disabled, na_disabled, rest_disabled, rest_disabled, rest_disabled, rest_disabled, path_name]
     
     is_open = False
     if contents is not None: 
@@ -103,6 +114,7 @@ def load_data(n_clicks, contents, filename, datatype, sep, index):
                 table_data.ALL_DATASETS = {}
                 delete_dataset(IN_PROCESSING_DATASETNAME)
                 delete_dataset_states()
+                path_name = "/page-1/1"
             else:
                 return [False] + [True] + 9 * [dash.no_update]
          # TODO add more datatypes
@@ -115,7 +127,7 @@ def load_data(n_clicks, contents, filename, datatype, sep, index):
     na_disabled = len(nan_cols) == 0 or len(cat_cols) > 0
     rest_disabled = len(nan_cols) > 0 != [] or len(cat_cols) > 0
         
-    training_disabled = True    
+    training_disabled = True  
         
-    return False, False, data_datatable_overview, overview_disabled, categorical_disabled, na_disabled, rest_disabled, rest_disabled, training_disabled, training_disabled, training_disabled
+    return False, False, data_datatable_overview, overview_disabled, categorical_disabled, na_disabled, rest_disabled, rest_disabled, training_disabled, training_disabled, path_name
 

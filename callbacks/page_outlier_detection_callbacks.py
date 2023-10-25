@@ -27,9 +27,10 @@ from view.page_helper_components.plots import *
 
 # update random forest detector style
 @app.callback(
-    Output("container_outlier_random_forest", "style"),
+    Output("container_outlier_random_forest", "style", allow_duplicate=True),
     Input("dropdown_outlier_method", "value"),
-    State("container_outlier_random_forest", "style")
+    State("container_outlier_random_forest", "style"),
+    prevent_initial_call=True
 )
 def update_style_rf(method, style):
     if style is None:
@@ -42,9 +43,10 @@ def update_style_rf(method, style):
 
 # update density detector style
 @app.callback(
-    Output("container_outlier_densitiy", "style"),
+    Output("container_outlier_densitiy", "style", allow_duplicate=True),
     Input("dropdown_outlier_method", "value"),
-    State("container_outlier_densitiy", "style")
+    State("container_outlier_densitiy", "style"),
+    prevent_initial_call=True
 )
 def update_style_density(method, style):
     if style is None:
@@ -57,9 +59,10 @@ def update_style_density(method, style):
 
 # update kv detector style
 @app.callback(
-    Output("container_outlier_kv", "style"),
+    Output("container_outlier_kv", "style", allow_duplicate=True),
     Input("dropdown_outlier_method", "value"),
-    State("container_outlier_kv", "style")
+    State("container_outlier_kv", "style"),
+    prevent_initial_call=True
 )
 def update_style_kv(method, style):
     if style is None:
@@ -70,21 +73,39 @@ def update_style_kv(method, style):
         style['display'] = 'none'        
     return style
 
+# update selected features
+@app.callback(
+    Output('dropdown_outlier_feature', 'value', allow_duplicate=True),
+    Input("checklist_outlier_all_features", "value"),
+    State('dropdown_outlier_feature', 'options'),
+    prevent_initial_call=True
+)
+def update_selected_features(all_features, options):
+    if all_features is None or all_features == []:
+        return dash.no_update
+    
+    return options
+
 # update button styles
 @app.callback(
-    Output("button_outlier_apply", "style"),
-    Output("button_outlier_show", "style"),
+    Output("button_outlier_apply", "style", allow_duplicate=True),
+    Output("button_outlier_show", "style", allow_duplicate=True),
     Input("button_outlier_show", "n_clicks"),
     Input("button_outlier_apply", "n_clicks"),
+    Input("dropdown_outlier_feature", "value"),
     Input("dropdown_outlier_method", "value"),
+    Input("dropdown_outlier_random_forest_contamination", "value"),   
     Input("slider_outlier_random_forest_n_estimators", "value"),
     Input("slider_outlier_densitiy_n_neighbors", "value"),
+    Input("dropdown_outlier_densitiy_contamination", "value"),  
+    Input("dropdown_outlier_densitiy_metric", "value"),
+    Input("dropdown_outlier_densitiy_p", "value"),
     Input("dropdown_outlier_densitiy_algorithm", "value"),
-    Input("dropdown_outlier_kv_feature", "value"),
     State("button_outlier_apply", "style"),
-    State("button_outlier_show", "style")
+    State("button_outlier_show", "style"),
+    prevent_initial_call=True
 )
-def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, style_apply, style_show):
+def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, v6, v7, v8, v9, style_apply, style_show):
     triggered_id = ctx.triggered_id
     if style_apply is None:
         style_apply = {}
@@ -104,34 +125,47 @@ def update_style_buttons(n_clicks1, n_clicks2, v1, v2, v3, v4, v5, style_apply, 
 
 # update outlier plot
 @app.callback(
-    Output("loading_outlier_preview", "children"),
-    Output("table_outlier_detection", "data"),
-    Output("table_outlier_detection", "columns"),
-    Output("table_outlier_detection", "selected_rows"),
+    Output("loading_outlier_preview", "children", allow_duplicate=True),
+    Output("table_outlier_detection", "data", allow_duplicate=True),
+    Output("table_outlier_detection", "columns", allow_duplicate=True),
+    Output("table_outlier_detection", "selected_rows", allow_duplicate=True),
     Input("button_outlier_show", "n_clicks"),
-    State("dropdown_outlier_method", "value"),
+    State("dropdown_outlier_feature", "value"),
+    State("dropdown_outlier_method", "value"),#
+    State("dropdown_outlier_random_forest_contamination", "value"),
     State("slider_outlier_random_forest_n_estimators", "value"),
     State("slider_outlier_densitiy_n_neighbors", "value"),
+    State("dropdown_outlier_densitiy_contamination", "value"),   
+    State("dropdown_outlier_densitiy_metric", "value"),
+    State("dropdown_outlier_densitiy_p", "value"),
     State("dropdown_outlier_densitiy_algorithm", "value"),
-    State("dropdown_outlier_kv_feature", "value"),
     State("table_outlier_detection", "data"),
+    prevent_initial_call=True
 )
-def update_outlier_plot(n_clicks, method, rf_n_estimators, densitiy_n_neighbors, densitiy_algorithm, kv_feature, data):
+def update_outlier_plot(n_clicks, cols, method, rf_contamination, rf_n_estimators, densitiy_n_neighbors, density_contamination, density_metric, density_p, densitiy_algorithm, data):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
     params = {}
     if method == OUTLIER_DETECTION_METHODS[0]: # isolation forest detector
         params['n_estimators'] = rf_n_estimators
+        if rf_contamination != 'auto':
+            rf_contamination = float(rf_contamination)
+        params['contamination'] = rf_contamination
     elif method == OUTLIER_DETECTION_METHODS[1]: # density detector
         params['n_neighbors'] = densitiy_n_neighbors
+        if density_contamination != 'auto':
+            density_contamination = float(density_contamination)
+        params['contamination'] = density_contamination
+        params['metric'] = OUTLIER_DETECTION_LOCAL_OUTLIER_FACTOR_METRIC[density_metric]
+        params['p'] = density_p
         params['algorithm'] = OUTLIER_DETECTION_LOCAL_ALGORITHM[densitiy_algorithm]
     elif method == OUTLIER_DETECTION_METHODS[2]: # kv detector
-        params['feature'] = kv_feature
+        pass
     
     # apply detector       
-    df_num = table_data.DF_RAW.select_dtypes(include=NUMERICS)
-    df_outlier, is_outlier= apply_outlier_detection(df_num, method, params)
+    df = table_data.DF_RAW[cols]
+    df_outlier, is_outlier= apply_outlier_detection(df, method, params)
     
     # update figure
     figure = get_outlier_plot(df_outlier)
@@ -139,7 +173,7 @@ def update_outlier_plot(n_clicks, method, rf_n_estimators, densitiy_n_neighbors,
     
     # update outlier datatable
     indices = is_outlier.index[is_outlier == True]
-    df_outlier = df_num.loc[indices]
+    df_outlier = df.loc[indices]
     df_outlier = df_outlier.reset_index()    
 
     data_datatable = [{col: df_outlier.loc[i, col] for col in df_outlier.columns} for i in df_outlier.index]
@@ -150,33 +184,44 @@ def update_outlier_plot(n_clicks, method, rf_n_estimators, densitiy_n_neighbors,
 
 # update outlier plot
 @app.callback(
-    Output("table_outlier_detection", "data"),
-    Output("figure_outlier_preview", "figure"),
+    Output("table_outlier_detection", "data", allow_duplicate=True),
+    Output("figure_outlier_preview", "figure", allow_duplicate=True),
     # update overview page
-    Output("datatable_overview", "data"),
-    Output("datatable_overview", "columns"),
+    Output("datatable_overview", "data", allow_duplicate=True),
+    Output("datatable_overview", "columns", allow_duplicate=True),
     # inputes
     Input("button_outlier_apply", "n_clicks"),
+    State("dropdown_outlier_feature", "value"),
     State("dropdown_outlier_method", "value"),
+    State("dropdown_outlier_random_forest_contamination", "value"),
     State("slider_outlier_random_forest_n_estimators", "value"),
     State("slider_outlier_densitiy_n_neighbors", "value"),
+    State("dropdown_outlier_densitiy_contamination", "value"),
+    State("dropdown_outlier_densitiy_metric", "value"),
+    State("dropdown_outlier_densitiy_p", "value"),
     State("dropdown_outlier_densitiy_algorithm", "value"),
-    State("dropdown_outlier_kv_feature", "value"),
     State("table_outlier_detection", "data"), 
     State("table_outlier_detection", "selected_rows"),
+    prevent_initial_call=True
 )
-def update_outlier_df(n_clicks, method, rf_n_estimators, densitiy_n_neighbors, densitiy_algorithm, kv_feature, data, selected_rows):
+def update_outlier_df(n_clicks, cols, method, rf_contamination, rf_n_estimators, densitiy_n_neighbors, density_contamination, density_metric, density_p, densitiy_algorithm, data, selected_rows):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
     # read out parameter
     params = {}
     if method == OUTLIER_DETECTION_METHODS[0]: # isolation forest detector
+        params['contamination'] = rf_contamination
         params['n_estimators'] = rf_n_estimators
     elif method == OUTLIER_DETECTION_METHODS[1]: # density detector
         params['n_neighbors'] = densitiy_n_neighbors
+        if density_contamination != 'auto':
+            density_contamination = float(density_contamination)
+        params['contamination'] = density_contamination
+        params['metric'] = OUTLIER_DETECTION_LOCAL_OUTLIER_FACTOR_METRIC[density_metric]
+        params['p'] = density_p
         params['algorithm'] = OUTLIER_DETECTION_LOCAL_ALGORITHM[densitiy_algorithm]
     elif method == OUTLIER_DETECTION_METHODS[2]: # kv detector
-        params['feature'] = kv_feature
+        pass
     
     # update dataframe
     indices = []
@@ -194,3 +239,28 @@ def update_outlier_df(n_clicks, method, rf_n_estimators, densitiy_n_neighbors, d
     columns_datatable_overview = [{"name": col, "id": col} for col in df.columns]   
     
     return data, figure, data_datatable_overview, columns_datatable_overview
+
+@app.callback(
+    Output("img_outlier_strategy", "src", allow_duplicate=True),  
+    Output("link_outlier_strategy", "href", allow_duplicate=True),  
+    Output("tooltip_outlier_strategy", "children", allow_duplicate=True), 
+    Input("dropdown_outlier_method", "value"), 
+    prevent_initial_call=True
+)
+def update_info(strategy):
+    if strategy == OUTLIER_DETECTION_METHODS[0]:
+        src = '/assets/img/link.png'
+        href = OUTLIER_LINKS[0]
+        children = OUTLIER_DESCRIPTIONS[0]
+    elif strategy == OUTLIER_DETECTION_METHODS[1]:
+        src = '/assets/img/link.png'
+        href = OUTLIER_LINKS[1]
+        children = OUTLIER_DESCRIPTIONS[1]
+    elif strategy == OUTLIER_DETECTION_METHODS[2]:
+        src = '/assets/img/tooltip.png'
+        href = OUTLIER_LINKS[2]
+        children = OUTLIER_DESCRIPTIONS[2]
+    else:
+        return dash.no_update
+
+    return src, href, children

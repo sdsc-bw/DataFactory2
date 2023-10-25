@@ -357,7 +357,16 @@ def create_container_for_parameter():
                     ),
                     
                     dbc.Card([
-                        dbc.CardHeader("Transformation:", className='card_subheader'),
+                        dbc.CardHeader([
+                            "Transformation:",
+                            dcc.Link(
+                                html.Img(src='/assets/img/tooltip.png', id='img_time_series_strategy', className='tooltip_img'),
+                                id='link_time_series_strategy',
+                                href='',
+                                target='_blank',
+                            ),
+                            dbc.Tooltip(TRANSFORMATIONS_DESCRIPTIONS[0], target='img_time_series_strategy', id='tooltip_time_series_strategy'),
+                        ], className='card_subheader'),
                         dbc.CardBody([
                             dcc.Dropdown(
                                 id='dropdown_transformation_time_series_feature_transformation',
@@ -458,7 +467,7 @@ def create_container_for_pca_parameter():
             add_container_for_n_components('container_transformation_time_series_pca_n_components', 'slider_transformation_time_series_pca_n_components'),
             add_container_for_feature_name('container_transformation_time_series_pca_feature_name', 'input_transformation_time_series_pca_feature_name')
         ],
-        style={'display': 'block'},
+        style={'display': 'none'},
         id='container_transformation_time_series_pca'
     )
         
@@ -501,7 +510,6 @@ def add_container_for_feature_name(id_container, id_input):
         ),
     ],
         className='card_subcontainer',
-        style={'display': 'block'},
         id=id_container,
     )
         
@@ -517,7 +525,7 @@ def create_container_for_dwt_parameter():
             add_container_for_vanishing_moments('container_transformation_time_series_dwt_vanishing_moments', 'slider_transformation_time_series_dwt_vanishing_moments'),
             add_container_for_feature_name('container_transformation_time_series_dwt_feature_name', 'input_transformation_time_series_dwt_feature_name')
         ],
-        style={'display': 'block'},
+        style={'display': 'none'},
         id='container_transformation_time_series_dwt'
     )
         
@@ -648,6 +656,18 @@ def add_container_for_steps(id_container, id_slider):
                  max=20,
                  step=1,
                  value=1,
+                 marks={
+                    1:"1",
+                    3:"3",
+                    5:"5",
+                    7:"7",
+                    9:"9",
+                    11:"11",
+                    13:"13",
+                    15:"15",
+                    17:"17",
+                    19:"19",
+                 },
                  tooltip={"placement": "top", "always_visible": False},
              ),
         ],
@@ -726,6 +746,18 @@ def add_container_for_periods(id_container, id_slider):
                  max=20,
                  step=1,
                  value=2,
+                 marks={
+                    1:"1",
+                    3:"3",
+                    5:"5",
+                    7:"7",
+                    9:"9",
+                    11:"11",
+                    13:"13",
+                    15:"15",
+                    17:"17",
+                    19:"19",
+                 },
                  tooltip={"placement": "top", "always_visible": False},
              ),
         ],
@@ -766,6 +798,19 @@ def add_container_for_diff_periods(id_container, id_slider):
                  max=10,
                  step=1,
                  value=1,
+                 marks={
+                    -10:"-10",
+                    -8:"-8",
+                    -6:"-6",
+                    -4:"-4",
+                    -2:"-2",
+                    0:"0",
+                    2:"2",
+                    4:"4",
+                    6:"6",
+                    8:"8",
+                    10:"10",
+                 },
                  tooltip={"placement": "top", "always_visible": False},
              ),
         ],
@@ -802,6 +847,18 @@ def add_container_for_polyorder(id_container, id_slider):
                  max=20,
                  step=1,
                  value=1,
+                 marks={
+                    1:"1",
+                    3:"3",
+                    5:"5",
+                    7:"7",
+                    9:"9",
+                    11:"11",
+                    13:"13",
+                    15:"15",
+                    17:"17",
+                    19:"19",
+                 },
                  tooltip={"placement": "top", "always_visible": False},
              ),
         ],
@@ -858,4 +915,5 @@ layout = dbc.Container(
         fluid = True,
         style = {"display": "none"}
     )
+
 

@@ -160,6 +160,15 @@ def load_dataset_states():
     else:
         with open(save_path, 'rb') as f:
             all_ranges= pickle.load(f)
+    
+    # load max ranges
+    save_file = 'max_ranges.pkl' 
+    save_path = os.path.join(save_dirs[-1], save_file)
+    if not os.path.exists(save_path):
+        all_max_ranges = {}
+    else:
+        with open(save_path, 'rb') as f:
+            all_max_ranges= pickle.load(f)
             
     # load datasets
     save_file = 'data.pkl' 
@@ -170,7 +179,7 @@ def load_dataset_states():
         with open(save_path, 'rb') as f:
             all_datasets = pickle.load(f)
             
-    return all_ranges, all_datasets
+    return all_ranges, all_max_ranges, all_datasets
 
 def check_existence(dataset_name, save_dir='./states/data_states'):
     save_path = os.path.join(save_dir, dataset_name) + ".csv"

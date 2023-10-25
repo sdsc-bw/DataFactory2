@@ -35,7 +35,8 @@ WAVELET_MODES = {'Symmetric': 'symmetric', 'Antisymmetric': 'antisymmetric', 'Ze
 
 SLIDING_WINDOW_OPERATIONS = {'Sum': 'sum', 'Mean': 'mean', 'Median': 'median', 'Min': 'min', 'Max': 'max', 'Std': 'std'}
 
-
+TRANSFORMATIONS_LINKS = ['', '', 'https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.PCA.html', 'https://pywavelets.readthedocs.io/en/latest/ref/dwt-discrete-wavelet-transform.html', 'https://numpy.org/doc/stable/reference/generated/numpy.fft.rfft.html', 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.shift.html', 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rolling.html', 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.diff.html', 'https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.savgol_filter.html', 'https://pykalman.github.io/class_docs.html']
+TRANSFORMATIONS_DESCRIPTIONS = ['This method normalizes the values of the selected features between 0 and 1.','This method rescales the selected features to have a mean of 0 and a standard deviation of 1.', 'Read more', 'Read more', 'Read more', 'Read more', 'Read more', 'Read more', 'Read more', 'Read more']
 
 def apply_transformation_table_data(df, cols, method, params):
     df = df.copy(deep=True)

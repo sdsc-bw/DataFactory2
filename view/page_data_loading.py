@@ -131,7 +131,8 @@ def create_container_for_parameter():
             
         ],
         ),
-        
+        style={'display': 'none'},
+        id='container_parameter_loading',
         width=4
     )
     
@@ -152,7 +153,7 @@ def create_container_for_table_data_parameter():
     return layout 
 
 def add_container_for_index(id_container, id_dropdown):
-    index_options = [{'label': 'Auto', 'value': 'auto'}, {'label': 'None', 'value': 'none'}]
+    index_options = [{'label': 'None', 'value': 'none'}, {'label': 'Auto', 'value': 'auto'}]
     
     layout = dbc.Card([
         dbc.CardHeader([
@@ -176,7 +177,7 @@ def add_container_for_index(id_container, id_dropdown):
         ),
     ],
         className='card_subcontainer',
-        style={'display': 'block'},
+        style={'display': 'none'},
         id=id_container,
     )
         

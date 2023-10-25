@@ -2,10 +2,6 @@ import pandas as pd
 import numpy as np
 
 from pandas.api.types import is_string_dtype
-import sqlite3
-import mysql.connector
-import psycopg2
-import pickle
 
 # the load data and set first column to index with name
 import os
@@ -17,11 +13,7 @@ from states.states import *
 SEP = ','
 index = 'auto'
 
-if not check_existence(IN_PROCESSING_DATASETNAME):
-    DF_RAW = None
-else:
-    index = None
-    DF_RAW = load_dataset(IN_PROCESSING_DATASETNAME, SEP, index=index)
+DF_RAW = None
 
 def find_problematic_columns(dataframe):
     cols = []
@@ -31,6 +23,6 @@ def find_problematic_columns(dataframe):
     return cols
 
 
-ALL_RANGES, ALL_DATASETS = load_dataset_states() 
+ALL_RANGES, ALL_MAX_RANGES, ALL_DATASETS = load_dataset_states() 
 ALL_RESULTS_CLASSIFICATION = []
         

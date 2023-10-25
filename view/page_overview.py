@@ -33,7 +33,7 @@ def create_data_overview_panel():
                 [
                     generate_text_board('text_board_shape', '(#Rows, #Features)', '(0,0)'),
                     generate_text_board('text_board_memory', 'Memory used', '0MB'),
-                    generate_text_board('text_board_na', 'NA', '0%'),
+                    generate_text_board('text_board_na', 'Missing', '0%'),
                     generate_text_board('text_board_num','Numeric', '0%'),
                 ],
                 align = "start",
@@ -51,14 +51,24 @@ def create_data_overview_panel():
                 className='row_overview_plots'
 
             ),
+            
+            dbc.Row(
+                [
+                    generate_lineplot('dropdown_overview_features_selection_linegraph', 'dropdown_overview_feature_selection_rangeslider_linegraph', 'dropdown_overview_target_selection_linegraph', 'dropdown_overview_class_selection_linegraph', 'figure_overview_linegraph', 'Line Plot'),
+                ],
+                align = "start",
+                justify = 'center',
+                className='row_overview_plots'
+
+            ),
 
 
             dbc.Row(
                 [
                     # histogram
-                    generate_histogram_with_rangeslide('dropdown_overview_features_selection_histogramgraph', 'dropdown_overview_feature_selection_rangeslider_histogram', 'figure_overview_histogram', 'rangeslider_overview_value_constraint_histogram', 'Histogram'),
+                    generate_histogram('dropdown_overview_features_selection_histogram', 'dropdown_overview_target_selection_histogram', 'dropdown_overview_class_selection_histogram', 'figure_overview_histogram', 'Histogram'),
                     # line graph
-                    generate_line_with_rangeslide('dropdown_overview_features_selection_linegraph', 'dropdown_overview_feature_selection_rangeslider_linegraph', 'figure_overview_linegraph', 'rangeslider_overview_value_constraint_linegraph', 'Line Plot'),
+                    generate_violinplot('dropdown_overview_features_selection_violinplot', 'dropdown_overview_feature_selection_rangeslider_violinplot', 'dropdown_overview_target_selection_violinplot', 'dropdown_overview_class_selection_violinplot', 'figure_overview_violinplot', 'Violin Plot'),
                     
                 ],
                 align = "start",
@@ -70,9 +80,9 @@ def create_data_overview_panel():
             dbc.Row(
                 [
                     # generate correlation heatmap
-                    generate_correlation_heatmap('dropdown_overview_feature_selection_heatmap', 'figure_overview_heatmap', 'Correlations'),
+                    generate_correlation_heatmap('dropdown_overview_feature_selection_heatmap', 'dropdown_overview_target_selection_heatmap', 'dropdown_overview_class_selection_heatmap', 'figure_overview_heatmap', 'Correlations'),
                     # scatter graph
-                    generate_scatter_with_rangeslide('dropdown1_overview_feature_selection_scattergraph', 'dropdown2_overview_feature_selection_scattergraph', 'figure_overview_scattergraph', 'rangeslider_overview_value_constraint_scattergraph', 'Scatter Plot'),
+                    generate_scatter('dropdown1_overview_feature_selection_scattergraph', 'dropdown2_overview_feature_selection_scattergraph', 'dropdown_overview_target_selection_scattergraph', 'dropdown_overview_class_selection_scattergraph', 'figure_overview_scattergraph','Scatter Plot'),
 
                 ],
                 align = "start",
@@ -97,7 +107,10 @@ def generate_text_board(id, text, value):
                         dbc.Col(
                             dbc.CardBody(
                                 [
-                                    html.H6(id=id, children=str(value), className='text_board_font1'), 
+                                    dcc.Loading(
+                                        id=id,
+                                        children=html.H6(children=str(value), className='text_board_font1'), 
+                                    ),
                                     html.P(str(text), className='text_board_font2')
                                 ]
                             ),
@@ -111,119 +124,29 @@ def generate_text_board(id, text, value):
         width=3,
     )
 
-
-
-
-##### histogram
-def generate_histogram_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, title=''):
+#### violinplot
+def generate_lineplot(id_fs1, id_fs2, id_fs3, id_fs4, id_figure, title=''):
     if table_data.DF_RAW is not None:
         df = table_data.DF_RAW
         options_all = list(df.columns)
         value_features = options_all[:2]
-        
-        
+        value_target = options_all[0]
         df_num = df.select_dtypes(include=NUMERICS)
-        options_num = list(df_num.columns)
+        options_num = ['index_auto'] + list(df_num.columns)
         value_index= options_num[0]
-        
-        min_first_num = df_num.iloc[:, 0].min()
-        max_first_num = df_num.iloc[:, 0].max()
     else:
         options_all = [] 
         value_features = None
+        value_target = None
         options_num = []
         value_index = None
-        min_first_num = 0
-        max_first_num = 1
         
-    marks = get_slider_marks((min_first_num, max_first_num))
+    tooltip = "Plot the features in a line plot. If your data contains a class feature you can filter the data for a specific class to only show data points that belong to this class."
         
     layout = dbc.Col(
         dbc.Card(
             [
-                add_cardheader_for_fullscreen_and_close('button_overview_histogram_close', 'button_overview_histogram_fullscreen', title, 'card_overview_histogram'),
-                dbc.CardBody(
-                    [
-                        html.Div([
-                            dcc.Dropdown(
-                                id = id_fs1,
-                                options=options_all,
-                                value=value_features,
-                                multi=True,
-                                className='dropdown_overview_multi_feature',
-                                clearable=False
-                            ),
-                        ]),
-                        dcc.Graph(
-                            id = id_figure,
-                            className='figure_overview'
-                        ),
-                        html.Div(
-                            [
-                                dbc.Col(
-                                    dcc.Dropdown(
-                                        id = id_fs2,
-                                        options=options_num,
-                                        value=value_index,
-                                        clearable=False
-                                    ),
-                                    width = 4
-                                ),
-                                dbc.Col(
-                                    html.Div(
-                                        dcc.RangeSlider(
-                                            id = id_slider,
-                                            min= min_first_num,
-                                            max= max_first_num,
-                                            marks = marks,
-                                            tooltip={"placement": "top", "always_visible": False},
-                                            value=[min_first_num, max_first_num],
-                                        ),
-                                    ),
-                                    width = 8
-                                )
-
-                            ],
-                            className = 'row',
-                        )
-
-                    ],
-                )
-            ],
-        ),
-        width = 6,
-        className='card_container',
-        id = 'card_overview_histogram'
-    )
-    return layout
-
-
-#### line graph
-def generate_line_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, title=''):
-    if table_data.DF_RAW is not None:
-        df = table_data.DF_RAW
-        options_all = list(df.columns)
-        value_features = options_all[:2]
-        
-        
-        df_num = df.select_dtypes(include=NUMERICS)
-        options_num = list(df_num.columns)
-        value_index= options_num[0]
-        
-        min_first_num = df_num.iloc[:, 0].min()
-        max_first_num = df_num.iloc[:, 0].max()
-    else:
-        options_all = [] 
-        value_features = None
-        options_num = []
-        value_index = None
-        min_first_num = 0
-        max_first_num = 1
-        
-    layout = dbc.Col(
-        dbc.Card(
-            [
-                add_cardheader_for_fullscreen_and_close('button_overview_linegraph_close', 'button_overview_linegraph_fullscreen', title, 'card_overview_linegraph'),
+                add_cardheader_for_fullscreen_and_close(title, 'img_overview_lineplot', tooltip),
                 dbc.CardBody(
                     [
                         html.Div([
@@ -236,37 +159,249 @@ def generate_line_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, title=''
                                 clearable=False
                             ),
                         ]),
-                        dcc.Graph(
-                            id = id_figure,
-                            className='figure_overview'
+                        html.Div(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Div("Target:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs3,
+                                            options=options_all,
+                                            value=value_target,
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target_large',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
+                                ),
+                                dbc.Col(
+                                    [
+                                        html.Div("Class:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs4,
+                                            options=['ALL'] + options_all,
+                                            value='ALL',
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target_large',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
+                                ),
+                            ],
+                            className='div_overview_single_feature'
+                        ),
+                        dcc.Loading(
+                            id=id_figure,
+                            type="default",
+                            children=dcc.Graph(className='figure_overview')
                         ),
                         html.Div(
                             [
                                 dbc.Col(
-                                    dcc.Dropdown(
-                                        id = id_fs2,
-                                        options=options_num,
-                                        value=value_index,
-                                        clearable=False
-                                    ),
-                                    width = 4,
+                                    [
+                                        html.Div("Index:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id=id_fs2,
+                                            options=options_num,
+                                            value=value_index,
+                                            clearable=False,
+                                            className='dropdown_overview_index',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width=6,
+                                )
+                            ],
+                            className='row',
+                        )
+
+                    ],
+                    #className="four columns",
+                )
+            ],
+        ),
+        width = 12,
+        className='card_container',
+        id = 'card_overview_linegraph'  
+    )
+    return layout
+
+
+##### histogram
+def generate_histogram(id_fs1, id_fs3, id_fs4, id_figure, title=''):
+    if table_data.DF_RAW is not None:
+        df = table_data.DF_RAW
+        options_all = list(df.columns)
+        value_features = options_all[0]
+        value_target = options_all[0]
+        
+        
+        df_num = df.select_dtypes(include=NUMERICS)
+        options_num = ['index_auto'] + list(df_num.columns)
+        value_index= options_num[0]
+        
+        min_first_num = df_num.iloc[:, 0].min()
+        max_first_num = df_num.iloc[:, 0].max()
+    else:
+        options_all = [] 
+        value_features = None
+        value_target = None
+        options_num = []
+        value_index = None
+        min_first_num = 0
+        max_first_num = 1
+    
+    tooltip = "Plot a the frequency of feature values of a feature in a histogram. If your data contains a class feature you can filter the data for a specific class to only show data points that belong to this class."
+    
+    marks = get_slider_marks((min_first_num, max_first_num))
+        
+    layout = dbc.Col(
+        dbc.Card(
+            [
+                add_cardheader_for_fullscreen_and_close(title, 'img_overview_histogramm', tooltip),
+                dbc.CardBody(
+                    [
+                        html.Div([
+                            dcc.Dropdown(
+                                id = id_fs1,
+                                options=options_all,
+                                value=value_features,
+                                multi=False,
+                                className='dropdown_overview_multi_feature',
+                                clearable=False
+                            ),
+                        ]),
+                        html.Div(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Div("Target:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs3,
+                                            options=options_all,
+                                            value=value_target,
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
                                 ),
                                 dbc.Col(
-                                    html.Div(
-                                        dcc.RangeSlider(
-                                            id = id_slider,
-                                            min= min_first_num,
-                                            max= max_first_num,
-                                            marks = {i: {'label': str(round(i))} for i in np.arange(min_first_num, max_first_num, (max_first_num-min_first_num)/5)},
-                                            tooltip={"placement": "top", "always_visible": False},
-                                            value=[min_first_num, max_first_num],
+                                    [
+                                        html.Div("Class:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs4,
+                                            options=['ALL'] + options_all,
+                                            value='ALL',
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
                                         ),
-                                    ),
-                                    width = 8
+                                    ],
+                                    width = 6
                                 ),
                             ],
-                            className = 'row',
-                        )
+                            className='div_overview_single_feature'
+                        ),
+                        dcc.Loading(
+                            id=id_figure,
+                            type="default",
+                            children=dcc.Graph(className='figure_overview')
+                        ),
+
+                    ],
+                )
+            ],
+        ),
+        width = 6,
+        className='card_container',
+        id = 'card_overview_histogram'
+    )
+    return layout
+
+
+#### violinplot
+def generate_violinplot(id_fs1, id_fs2, id_fs3, id_fs4, id_figure, title=''):
+    if table_data.DF_RAW is not None:
+        df = table_data.DF_RAW
+        options_all = list(df.columns)
+        value_features = options_all[:2]
+        value_target = options_all[0]
+        df_num = df.select_dtypes(include=NUMERICS)
+        options_num = ['index_auto'] + list(df_num.columns)
+        value_index= options_num[0]
+    else:
+        options_all = [] 
+        value_features = None
+        value_target = None
+        options_num = []
+        value_index = None
+        
+    tooltip = "Plot the distribution of the feature values in a violin plot. If your data contains a class feature you can filter the data for a specific class to only show data points that belong to this class."
+        
+    layout = dbc.Col(
+        dbc.Card(
+            [
+                add_cardheader_for_fullscreen_and_close(title, 'img_overview_violinplot', tooltip),
+                dbc.CardBody(
+                    [
+                        html.Div([
+                            dcc.Dropdown(
+                                id = id_fs1,
+                                options=options_all,
+                                value= value_features,
+                                multi=True,
+                                className='dropdown_overview_multi_feature',
+                                clearable=False
+                            ),
+                        ]),
+                        html.Div(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Div("Target:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs3,
+                                            options=options_all,
+                                            value=value_target,
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
+                                ),
+                                dbc.Col(
+                                    [
+                                        html.Div("Class:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs4,
+                                            options=['ALL'] + options_all,
+                                            value='ALL',
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
+                                ),
+                            ],
+                            className='div_overview_single_feature'
+                        ),
+                        dcc.Loading(
+                            id=id_figure,
+                            type="default",
+                            children=dcc.Graph(className='figure_overview')
+                        ),
 
                     ],
                     #className="four columns",
@@ -275,33 +410,35 @@ def generate_line_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, title=''
         ),
         width = 6,
         className='card_container',
-        id = 'card_overview_linegraph'  
+        id = 'card_overview_violinplot'  
     )
     return layout
 
 
 
 #### scatter plot
-def generate_scatter_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, title=''):
+def generate_scatter(id_fs1, id_fs2, id_fs3, id_fs4, id_figure, title=''):
     if table_data.DF_RAW is not None:
         df = table_data.DF_RAW
+        options_all = list(df.columns)
+        value_target = options_all[0]
         df_num = df.select_dtypes(include=NUMERICS)
         options_num = list(df_num.columns)
         value_num_1 = options_num[0]
         value_num_2 = options_num[1]
-        
-        min_first_num = df_num.iloc[:, 0].min()
-        max_first_num = df_num.iloc[:, 0].max()
     else:
+        options_all = []
+        value_target = None
         options_num = []
         value_num_1 = None
         value_num_2 = None
-        min_first_num = 0
-        max_first_num = 1
+        
+    tooltip = "Plot two features in a scatter plot. If your data contains a class feature you can filter the data for a specific class to only show data points that belong to this class. Or you can plot all classes and the datapoints are colored in different according to the corresponding class."    
+        
     layout = dbc.Col(
         dbc.Card(
             [
-                add_cardheader_for_fullscreen_and_close('button_overview_scatter_close', 'button_overview_scatter_fullscreen', title, 'card_overview_scatter'),
+                add_cardheader_for_fullscreen_and_close(title, 'img_overview_scatter', tooltip),
                 dbc.CardBody(
                     [
                         html.Div(
@@ -327,28 +464,46 @@ def generate_scatter_with_rangeslide(id_fs1, id_fs2, id_figure, id_slider, title
                             ],
                             className='div_overview_single_feature'
                         ),
-                        dcc.Graph(
-                            id = id_figure,
-                            className='figure_overview'
-                        ),
                         html.Div(
                             [
                                 dbc.Col(
-                                    html.Div(
-                                        dcc.RangeSlider(
-                                            id = id_slider,
-                                            min= min_first_num,
-                                            max= max_first_num,
-                                            marks = {i: {'label': str(round(i))} for i in np.arange(min_first_num, max_first_num, (max_first_num-min_first_num)/5)},
-                                            tooltip={"placement": "top", "always_visible": False},
-                                            value=[min_first_num, max_first_num],
+                                    [
+                                        html.Div("Target:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs3,
+                                            options=options_all,
+                                            value=value_target,
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
                                         ),
-                                    ),
-                                    width = 16
-                                )
+                                    ],
+                                    width = 6
+                                ),
+                                dbc.Col(
+                                    [
+                                        html.Div("Class:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs4,
+                                            options=['ALL'] + options_all,
+                                            value='ALL',
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
+                                ),
                             ],
-                            className = 'row',
-                        )
+                            className='div_overview_single_feature'
+                        ),
+                        dcc.Loading(
+                            id=id_figure,
+                            type="default",
+                            children=dcc.Graph(className='figure_overview')
+                        ),
 
                     ],
                 )
@@ -372,12 +527,12 @@ def generate_datatable_with_dataframe(id, title=''):
         cols = [{"name": i, "id": i} for i in OVERVIEW_COLUMNS]
         data = None
      
-    tooltip = "In this table you can delete features. You can also use the search function (first row under the header) to filter for values. In case of numeric values you can also use '<', '>','<=', '>=' and '!='. E.g. use '< 60.8' to filter for values less than 60.8. "
+    tooltip = "In this table you can delete features by clicking the cross beside the feature. You can also use the search function (first row under the header) to filter for values. In case of numeric values you can also use '<', '>','<=', '>=' and '!='. E.g. use '< 60.8' to filter for values less than 60.8."
         
     layout = dbc.Col(
         dbc.Card(
             [
-                add_cardheader_for_fullscreen_and_close('button_overview_datatable_close', 'button_overview_datatable_fullscreen', title, 'card_overview_datatable', 'img_overview_datatable', tooltip),
+                add_cardheader_for_fullscreen_and_close(title, 'img_overview_datatable', tooltip),
                 dbc.CardBody(
                     [
                         dash_table.DataTable(
@@ -386,7 +541,7 @@ def generate_datatable_with_dataframe(id, title=''):
                             data = data,
                             filter_action='native',
                             row_deletable=True,
-                            editable=True,
+                            editable=False,
                             page_size=14,
                             fill_width=True,
                             sort_action="native",
@@ -417,9 +572,11 @@ def generate_datatable_with_dataframe(id, title=''):
     )
     return layout
 
-def generate_correlation_heatmap(id_dropdown, id_figure, title=''):
+def generate_correlation_heatmap(id_dropdown, id_fs2, id_fs3, id_figure, title=''):
     if table_data.DF_RAW is not None:
         df = table_data.DF_RAW
+        options_all = list(df.columns)
+        value_target = options_all[0]
         df_num = df.select_dtypes(include=NUMERICS)
         options_num =list(df_num.columns)
         value_num = options_num[:5]
@@ -427,15 +584,19 @@ def generate_correlation_heatmap(id_dropdown, id_figure, title=''):
         min_first_num = df_num.iloc[:, 0].min()
         max_first_num = df_num.iloc[:, 0].max()
     else:
+        options_all = []
         options_num = []
         value_num = None
+        value_target = None
         min_first_num = 0
         max_first_num = 1
+        
+    tooltip = "Plot the correlations between the different features. If your data contains a class feature you can filter the data for a specific class to only show data points that belong to this class."  
     
     layout = dbc.Col(
         dbc.Card(
             [
-                add_cardheader_for_fullscreen_and_close('button_overview_heatmap_close', 'button_overview_heatmap_fullscreen', title, 'card_overview_heatmap'),
+                add_cardheader_for_fullscreen_and_close(title, 'img_overview_heatmap', tooltip),
                 dbc.CardBody(
                     [
                         html.Div([
@@ -448,7 +609,42 @@ def generate_correlation_heatmap(id_dropdown, id_figure, title=''):
                                 clearable=False
                             ),
                         ]),
-                        dcc.Graph(id=id_figure,className='figure_overview')
+                        html.Div(
+                            [
+                                dbc.Col(
+                                    [
+                                        html.Div("Target:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs2,
+                                            options=options_all,
+                                            value=value_target,
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
+                                ),
+                                dbc.Col(
+                                    [
+                                        html.Div("Class:", className='text_overview_index', style={'display': 'inline-block', 'vertical-align': 'middle'}),
+                                        dcc.Dropdown(
+                                            id = id_fs3,
+                                            options=['ALL'] + options_all,
+                                            value='ALL',
+                                            clearable=False,
+                                            multi=False,
+                                            className='dropdown_overview_target',
+                                            style={'display': 'inline-block', 'vertical-align': 'middle'}
+                                        ),
+                                    ],
+                                    width = 6
+                                ),
+                            ],
+                            className='div_overview_single_feature'
+                        ),
+                        dcc.Graph(id=id_figure,className='figure_overview'),
                     ],
                 )
             ],
@@ -495,31 +691,13 @@ def generate_heatmap_figure_with_dataframe(df):
 
 
 ############# util
-def add_cardheader_for_fullscreen_and_close(id_close, id_fullscreen, title, id_target=None, id_tooltip="", tooltip=""):
+def add_cardheader_for_fullscreen_and_close(title, id_target="", tooltip=""):
     if tooltip == "":
         layout = dbc.CardHeader(
             [
                 dbc.Row(
                     [
                         dbc.Col(html.H5(title, className='h5'), width=11),
-                        dbc.Col(
-                            [
-                                dbc.Button(
-                                    html.Img(src="/assets/img/fullscreen.png", className='btn_img'),
-                                    id=id_fullscreen,
-                                    color="#FDFCFC",
-                                    style={'display': 'block'}
-                                ),
-                                dbc.Button(
-                                    html.Img(src="/assets/img/close.png", className='btn_img'),
-                                    id=id_close,
-                                    color="#FDFCFC",
-                                    style={'display': 'block'}
-                                )
-                            ],
-                            width=1,
-                            style={'display': 'flex', 'flex-direction': 'row', 'align-items': 'center'}
-                        ),
                     ],
                     className='card_header_fullscreen_and_close'
                 )
@@ -528,78 +706,53 @@ def add_cardheader_for_fullscreen_and_close(id_close, id_fullscreen, title, id_t
     else:
         layout = dbc.CardHeader(
             [
-                dbc.Row(
-                    [
-                        dbc.Col(html.H5(title, className='h5'), width=11),
-                        dbc.Col(
-                            [
-                                html.Img(id=id_tooltip, src="/assets/img/tooltip.png", className='tooltip_img'),
-                                dbc.Tooltip(
-                                    tooltip,
-                                    target='img_overview_datatable', 
-                                ),
-                                dbc.Button(
-                                    html.Img(src="/assets/img/fullscreen.png", className='btn_img'),
-                                    id=id_fullscreen,
-                                    color="#FDFCFC",
-                                    style={'display': 'block'}
-                                ),
-                                dbc.Button(
-                                    html.Img(src="/assets/img/close.png", className='btn_img'),
-                                    id=id_close,
-                                    color="#FDFCFC",
-                                    style={'display': 'block'}
-                                )
-                            ],
-                            width=1,
-                            style={'display': 'flex', 'flex-direction': 'row', 'align-items': 'center'}
-                        ),
-                    ],
-                    className='card_header_fullscreen_and_close'
-                )
+                html.Img(id=id_target, src="/assets/img/tooltip.png", className='tooltip_img'),
+                dbc.Tooltip(tooltip, target=id_target),
+                html.H5(title, className='h5'),
             ],
         )
     
     if id_target:
+        pass
         # regist callback
-        @app.callback(
-            Output(id_target, "style"),
-            Output(id_close, "style"),
-            Input(id_close, 'n_clicks'),
-            Input(id_fullscreen, 'n_clicks'),
-            State(id_target, "style"),
-            State(id_close, "style")
+        #@app.callback(
+        #    Output(id_target, "style"),
+        #    Output(id_close, "style"),
+        #    Input(id_close, 'n_clicks'),
+        #    Input(id_fullscreen, 'n_clicks'),
+        #    State(id_target, "style"),
+        #    State(id_close, "style")
 
-        )
-        def fullscreen_target(n_clicks1, n_clicks2, style, style_close):
-            triggered_id = ctx.triggered_id
-            if triggered_id == id_close:
-                if n_clicks1 and n_clicks1%2 == 1:
-                    style['display'] = 'none'
-                else:
-                    style['display'] = 'block'
-                return style
-            else:
-                style_card_full = {
-                                    'height': '90vh',
-                                    'width': 'auto',
-                                    'zIndex': 998,
-                                    'position': 'fixed', 'top': '55px',
-                                    'bottom': 0, 'left': 0, 'right': 0,
-                                    'background-color': 'white'
-                                }
-                style_card_small = {
+        #)
+        #def fullscreen_target(n_clicks1, n_clicks2, style, style_close):
+        #    triggered_id = ctx.triggered_id
+        #    if triggered_id == id_close:
+        #        if n_clicks1 and n_clicks1%2 == 1:
+        #            style['display'] = 'none'
+        #        else:
+        #            style['display'] = 'block'
+        #        return style
+        #    else:
+        #        style_card_full = {
+        #                            'height': '90vh',
+        #                            'width': 'auto',
+        #                            'zIndex': 998,
+        #                            'position': 'fixed', 'top': '55px',
+        #                            'bottom': 0, 'left': 0, 'right': 0,
+        #                            'background-color': 'white'
+        #                        }
+        #        style_card_small = {
 
-                }
-                style_component = {
-                    'height': '89vh', 'maxHeight': '89vh',
-                }
-                if n_clicks2 and n_clicks2%2 == 1:
-                    style_close['display'] = 'none'
-                    return style_card_full, style_close
-                else:
-                    style_close['display'] = 'block'
-                    return style_card_small, style_close
+        #        }
+        #        style_component = {
+        #            'height': '89vh', 'maxHeight': '89vh',
+        #        }
+        #        if n_clicks2 and n_clicks2%2 == 1:
+        #            style_close['display'] = 'none'
+        #            return style_card_full, style_close
+        #        else:
+        #            style_close['display'] = 'block'
+        #            return style_card_small, style_close
 
     return layout
 

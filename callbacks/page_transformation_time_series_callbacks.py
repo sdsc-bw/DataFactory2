@@ -25,12 +25,16 @@ from view.page_helper_components.plots import *
 # import util
 from methods.util import remove_item_if_exist
 
+# import slider marks
+from view.page_helper_components.sliders import get_slider_marks
+
 # update datasets
 @app.callback(
-    Output("modal_transformation_time_series_delete_dataset", "is_open"),
+    Output("modal_transformation_time_series_delete_dataset", "is_open", allow_duplicate=True),
     Input("button_transformation_time_series_delete_dataset", "n_clicks"),     
     Input("button_transformation_time_series_delete_dataset_no", "n_clicks"),
     State("modal_transformation_time_series_delete_dataset", "is_open"),
+    prevent_initial_call=True
 )
 def toggle_deletion_modal(n_clicks1, n_clicks2, is_open):
     if n_clicks1 is None or n_clicks1 == 0:
@@ -42,22 +46,24 @@ def toggle_deletion_modal(n_clicks1, n_clicks2, is_open):
 @app.callback(
     Output("button_transformation_time_series_save_dataset", "disabled"),
     Input("dropdown_transformation_time_series_dataset", "options"),
+    prevent_initial_call=True
 )
 def disable_save_dataset(options):
     return not len(options) > 0
 
 @app.callback(
-    Output("modal_transformation_time_series_delete_dataset", "is_open"),
-    Output("dropdown_transformation_time_series_dataset", "options"),
-    Output("dropdown_transformation_time_series_dataset", "value"),
-    Output("dropdown_transformation_time_series_overview_feature", "options"),
-    Output("dropdown_transformation_time_series_overview_feature", "value"),
-    Output("dropdown_transformation_time_series_features", "options"),
-    Output("dropdown_transformation_time_series_features", "value"),
-    Output("button_transformation_time_series_delete_dataset", "disabled"),
+    Output("modal_transformation_time_series_delete_dataset", "is_open", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_dataset", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_dataset", "value", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "value", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "value", allow_duplicate=True),
+    Output("button_transformation_time_series_delete_dataset", "disabled", allow_duplicate=True),
     Input("button_transformation_time_series_delete_dataset_yes", "n_clicks"),
     State("modal_transformation_time_series_delete_dataset", "is_open"),
     State("dropdown_transformation_time_series_dataset", "value"),
+    prevent_initial_call=True
 )
 def delete_datset(n_clicks, is_open, dataset_name):
     if n_clicks is None or n_clicks == 0:
@@ -86,9 +92,10 @@ def delete_datset(n_clicks, is_open, dataset_name):
     return not is_open, options_datasets, curr_dataset, options_features, value_overview, options_features, value_parameter, disabled
 
 @app.callback(
-    Output("modal_transformation_time_series_add_dataset", "is_open"),
+    Output("modal_transformation_time_series_add_dataset", "is_open", allow_duplicate=True),
     Input("button_transformation_time_series_plus_dataset", "n_clicks"), 
     State("modal_transformation_time_series_add_dataset", "is_open"),
+    prevent_initial_call=True
 )
 def toggle_modal(n_clicks, is_open):
     if n_clicks is None:
@@ -97,8 +104,9 @@ def toggle_modal(n_clicks, is_open):
     return not is_open
 
 @app.callback(
-    Output("dropdown_transformation_time_series_dataset", "value"),
+    Output("dropdown_transformation_time_series_dataset", "value", allow_duplicate=True),
     Input("modal_transformation_time_series_add_dataset", "is_open"),
+    prevent_initial_call=True
 )
 def close_modal(is_open):
     if is_open:
@@ -110,9 +118,10 @@ def close_modal(is_open):
         return list(table_data.ALL_DATASETS.keys())[-1]
 
 @app.callback(
-    Output("button_transformation_time_series_save_dataset", "n_clicks"),
+    Output("button_transformation_time_series_save_dataset", "n_clicks", allow_duplicate=True),
     Input("button_transformation_time_series_save_dataset", "n_clicks"), 
     State("dropdown_transformation_time_series_dataset", "value"),
+    prevent_initial_call=True
 )
 def toggle_modal(n_clicks, dataset_name):
     if n_clicks is None or n_clicks == 0:
@@ -125,32 +134,35 @@ def toggle_modal(n_clicks, dataset_name):
     return dash.no_update
 
 @app.callback(
-    Output("alert_transformation_time_series_duplicate_dataset", "is_open"),
-    Output("modal_transformation_time_series_add_dataset", "is_open"),
-    Output("dropdown_transformation_time_series_dataset", "options"),
-    Output("dropdown_transformation_time_series_dataset", "value"),
-    Output("input_transformation_time_series_new_dataset", "value"),
-    Output("dropdown_transformation_time_series_overview_feature", "options"),
-    Output("dropdown_transformation_time_series_overview_feature", "value"),
-    Output("dropdown_transformation_time_series_features", "options"),
-    Output("dropdown_transformation_time_series_features", "value"),
-    Output("button_transformation_time_series_delete_dataset", "disabled"),
+    Output("alert_transformation_time_series_duplicate_dataset", "is_open", allow_duplicate=True),
+    Output("modal_transformation_time_series_add_dataset", "is_open", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_dataset", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_dataset", "value", allow_duplicate=True),
+    Output("input_transformation_time_series_new_dataset", "value", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "value", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "value", allow_duplicate=True),
+    Output("button_transformation_time_series_delete_dataset", "disabled", allow_duplicate=True),
+    Output("button_outlier", "disabled", allow_duplicate=True),
     Input("button_transformation_time_series_add_dataset", "n_clicks"),
     State("modal_transformation_time_series_add_dataset", "is_open"),
     State("input_transformation_time_series_new_dataset", "value"),
+    prevent_initial_call=True
 )
 def add_dataset(n_clicks, is_open, dataset_name):
     if n_clicks is None or n_clicks == 0:
         return dash.no_update
 
     if dataset_name in list(table_data.ALL_DATASETS.keys()):
-        return [True] + 9 * [dash.no_update]
+        return [True] + 10 * [dash.no_update]
         
     is_open = not is_open
     
     # update datasets
     table_data.ALL_DATASETS[dataset_name] = table_data.DF_RAW.copy(deep=True)
     table_data.ALL_RANGES[dataset_name] = [table_data.DF_RAW.index.min(), table_data.DF_RAW.index.max()]
+    table_data.ALL_MAX_RANGES[dataset_name] = [table_data.DF_RAW.index.min(), table_data.DF_RAW.index.max()]
     options_datasets = list(table_data.ALL_DATASETS.keys())
     curr_dataset = dataset_name
     
@@ -170,15 +182,16 @@ def add_dataset(n_clicks, is_open, dataset_name):
     
     #save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
     
-    return False, is_open, options_datasets, dataset_name, new_dataset_name, options_features, value_overview, options_features, value_parameter, disabled
+    return False, is_open, options_datasets, dataset_name, new_dataset_name, options_features, value_overview, options_features, value_parameter, disabled, True
 
 @app.callback(
-    Output("alert_transformation_time_series_duplicate_feature_name", "is_open"),
+    Output("alert_transformation_time_series_duplicate_feature_name", "is_open", allow_duplicate=True),
     Input("button_transformation_time_series_show", "n_clicks"),
     State("dropdown_transformation_time_series_feature_transformation", "value"),
     State("input_transformation_time_series_pca_feature_name", "value"),
     State("input_transformation_time_series_dwt_feature_name", "value"),
     State("dropdown_transformation_time_series_dataset", "value"),
+    prevent_initial_call=True
 )
 def toggle_feature_alert(n_clicks, method, pca_feature_name, dwt_feature_name, dataset_name):
     if n_clicks is None or n_clicks == 0:
@@ -194,11 +207,12 @@ def toggle_feature_alert(n_clicks, method, pca_feature_name, dwt_feature_name, d
     return False
 
 @app.callback(
-    Output("alert_transformation_time_series_polyorder", "is_open"),
+    Output("alert_transformation_time_series_polyorder", "is_open", allow_duplicate=True),
     Input("button_transformation_time_series_show", "n_clicks"),
     State("dropdown_transformation_time_series_feature_transformation", "value"),
     State("slider_transformation_time_series_sgf_polyorder", "value"),
     State("slider_transformation_time_series_sgf_periods", "value"),
+    prevent_initial_call=True
 )
 def toggle_sgf_alert(n_clicks, method, polyorder, window_size):
     if n_clicks is None or n_clicks == 0:
@@ -211,14 +225,14 @@ def toggle_sgf_alert(n_clicks, method, polyorder, window_size):
 
 # update after feature removal
 @app.callback(
-    Output("dropdown_transformation_time_series_overview_feature", "options"),
-    Output("dropdown_transformation_time_series_overview_feature", "value"),
-    Output("dropdown_transformation_time_series_features", "options"),
-    Output("dropdown_transformation_time_series_features", "value"),
-    Output("dropdown_classification_target", "options"),
-    Output("dropdown_classification_target", "value"),
-    Output("dropdown_regression_target", "options"),
-    Output("dropdown_regression_target", "value"),
+    Output("dropdown_transformation_time_series_overview_feature", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "value", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "value", allow_duplicate=True),
+    Output("dropdown_classification_target", "options", allow_duplicate=True),
+    Output("dropdown_classification_target", "value", allow_duplicate=True),
+    Output("dropdown_regression_target", "options", allow_duplicate=True),
+    Output("dropdown_regression_target", "value", allow_duplicate=True),
     # input
     State('datatable_transformation_time_series_features', 'data_previous'),
     Input('datatable_transformation_time_series_features', 'data'),
@@ -231,6 +245,7 @@ def toggle_sgf_alert(n_clicks, method, polyorder, window_size):
     State("dropdown_regression_dataset", "value"),
     State("dropdown_regression_target", "options"),
     State("dropdown_regression_target", "value"),
+    prevent_initial_call=True
 )
 def delete_feature(previous, current, dataset_name, value_overview, value_parameter, value_dataset_name_classification, options_target_classification, value_target_classification, value_dataset_name_regression, options_target_regression, value_target_regression): 
     if dataset_name is None:
@@ -280,15 +295,19 @@ def delete_feature(previous, current, dataset_name, value_overview, value_parame
 
 # update after selected dataset changes
 @app.callback(
-    Output('datatable_transformation_time_series_features', 'data'),
-    Output('datatable_transformation_time_series_features', 'data_previous'),
-    Output("dropdown_transformation_time_series_overview_feature", "options"),
-    Output("dropdown_transformation_time_series_overview_feature", "value"),
-    Output("rangeslider_transformation_time_series_overview", "value"),
-    Output("dropdown_transformation_time_series_features", "options"),
-    Output("dropdown_transformation_time_series_features", "value"),
-    Output('checklist_transformation_time_series_all_features', 'value'),
+    Output('datatable_transformation_time_series_features', 'data', allow_duplicate=True),
+    Output('datatable_transformation_time_series_features', 'data_previous', allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "value", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "value", allow_duplicate=True),
+    Output('checklist_transformation_time_series_all_features', 'value', allow_duplicate=True),    
+    Output("rangeslider_transformation_time_series_overview", "value", allow_duplicate=True),
+    Output("rangeslider_transformation_time_series_overview", "min", allow_duplicate=True),
+    Output("rangeslider_transformation_time_series_overview", "max", allow_duplicate=True),
+    Output("rangeslider_transformation_time_series_overview", "marks", allow_duplicate=True),
     Input("dropdown_transformation_time_series_dataset", "value"),
+    prevent_initial_call=True
 )
 def update_after_dataset_changes(dataset_name):
     if dataset_name is None or dataset_name == '':
@@ -303,19 +322,27 @@ def update_after_dataset_changes(dataset_name):
     df = table_data.ALL_DATASETS[dataset_name]
     options_features = list(df.columns)
     value_overview = options_features[:4]
-    range_values =  table_data.ALL_RANGES[dataset_name]
+    
+    #range_values =  table_data.ALL_RANGES[dataset_name]
+    
+    # update rangeslider
+    range_values = table_data.ALL_RANGES[dataset_name]
+    range_min, range_max =  table_data.ALL_MAX_RANGES[dataset_name]
+    
+    marks = get_slider_marks((range_min, range_max))
     
     # update parameter
     checklist_value = []
     value_parameter = options_features[:3]    
     
-    return data, None, options_features, value_overview, range_values, options_features, value_parameter, checklist_value
+    return data, None, options_features, value_overview, options_features, value_parameter, checklist_value, range_values, range_min, range_max, marks
 
 # update selected features
 @app.callback(
-    Output('dropdown_transformation_time_series_features', 'value'),
+    Output('dropdown_transformation_time_series_features', 'value', allow_duplicate=True),
     Input("checklist_transformation_time_series_all_features", "value"),
     State('dropdown_transformation_time_series_features', 'options'),
+    prevent_initial_call=True
 )
 def update_selected_features(all_features, options):
     if all_features is None or all_features == []:
@@ -323,17 +350,77 @@ def update_selected_features(all_features, options):
     
     return options
 
+# update selected features when plot changes
+@app.callback(
+    Output('dropdown_transformation_time_series_overview_feature', 'value', allow_duplicate=True),
+    Input("dropdown_transformation_time_series_plots", "value"),
+    Input('dropdown_transformation_time_series_overview_feature', 'value'),
+    prevent_initial_call=True
+)
+def update_selected_features_after_plot_changes(plot, cols):
+    if cols is None or cols == []:
+        return dash.no_update
+    
+    if plot == PLOTS[1]:
+        # histogram only needs one feature
+        cols = [cols[0]]
+    elif plot == PLOTS[3]:
+        if len(cols) > 2:
+            cols = cols[:2]
+    else:
+        return dash.no_update
+    
+    return cols
+
+# update after selected dataset changes
+@app.callback(
+    Output("dropdown_classification_dataset", "options", allow_duplicate=True),
+    Output("dropdown_classification_dataset", "value", allow_duplicate=True),    
+    Output("dropdown_regression_dataset", "options", allow_duplicate=True),
+    Output("dropdown_regression_dataset", "value", allow_duplicate=True), 
+    Input("dropdown_transformation_time_series_dataset", "options"),
+    State("dropdown_classification_dataset", "value"), 
+    State("dropdown_regression_dataset", "value"),
+    prevent_initial_call=True
+)
+def update_after_dataset_changes(datasets, dataset_name_classification, dataset_name_regression):
+    if datasets is None or datasets == []:
+        return dash.no_update
+    
+    
+    options = list(table_data.ALL_DATASETS.keys())
+    if dataset_name_classification not in options:
+        dataset_name_classification = options[0]
+        
+    if dataset_name_regression not in options:
+        dataset_name_regression = options[0]
+        
+    df = table_data.ALL_DATASETS[dataset_name_classification]
+    
+    # update rangeslider
+    #min_range = df.index.min() 
+    #max_range = df.index.max()
+    #value_range = table_data.ALL_RANGES[dataset_name_classification]
+    #range_min, range_max =  table_data.ALL_MAX_RANGES[dataset_name]
+    
+    #marks = get_slider_marks((min_range, max_range))
+    
+    return options, dataset_name_classification, options, dataset_name_regression
+
 # update overview plot
 @app.callback(
-    Output("figure_transformation_time_series_overview", "figure"),
+    Output("figure_transformation_time_series_overview", "figure", allow_duplicate=True),
     Input("dropdown_transformation_time_series_overview_feature", "options"),
     Input("dropdown_transformation_time_series_overview_feature", "value"),
     Input("dropdown_transformation_time_series_plots", "value"),
     State("dropdown_transformation_time_series_dataset", "value"),
     Input("rangeslider_transformation_time_series_overview", "value"),
+    Input("rangeslider_transformation_time_series_overview", "min"),
+    Input("rangeslider_transformation_time_series_overview", "max"),
+    prevent_initial_call=True
 )
-def update_overview_plot(options, cols, plot, dataset_name, values_range):
-    if cols is None or cols == "":
+def update_overview_plot(options, cols, plot, dataset_name, values_range, range_min, range_max):
+    if cols is None or cols == "" or cols == []:
         return dash.no_update
     if dataset_name is None or dataset_name == '':
         return dash.no_update
@@ -354,7 +441,7 @@ def update_overview_plot(options, cols, plot, dataset_name, values_range):
         df = compute_plot(df, None, cols, value_min, value_max, reset_index=True)
         figure = get_overview_histogram_plot(df, cols)
     elif plot == PLOTS[2]:
-        corr = analyse_correlation(df[cols])
+        corr = analyse_correlation(df, cols)
         figure = get_overview_heatmap(corr)
     elif plot == PLOTS[3]:
         if len(cols) >= 2:
@@ -370,16 +457,20 @@ def update_overview_plot(options, cols, plot, dataset_name, values_range):
          figure = get_violin_plot(df, cols, max_index=None)
     
     # save range
-    table_data.ALL_RANGES[dataset_name] = values_range
+    triggered_id = ctx.triggered_id
+    if triggered_id == "rangeslider_transformation_time_series_overview":
+        table_data.ALL_RANGES[dataset_name] = values_range
+        table_data.ALL_MAX_RANGES[dataset_name] = (range_min, range_max)
     #save_dataset_states(table_data.ALL_DATASETS, table_data.ALL_RANGES)
     
     return figure
 
 # update parameter
 @app.callback(
-    Output("container_transformation_time_series_pca", "style"),
+    Output("container_transformation_time_series_pca", "style", allow_duplicate=True),
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
-    State("container_transformation_time_series_pca", "style")
+    State("container_transformation_time_series_pca", "style"),
+    prevent_initial_call=True
 )
 def update_style_pca(method, style):
     if style is None:
@@ -391,9 +482,10 @@ def update_style_pca(method, style):
     return style
 
 @app.callback(
-    Output("slider_transformation_time_series_pca_n_components", "max"),
-    Output("input_transformation_time_series_pca_feature_name", "value"),
+    Output("slider_transformation_time_series_pca_n_components", "max", allow_duplicate=True),
+    Output("input_transformation_time_series_pca_feature_name", "value", allow_duplicate=True),
     Input("dropdown_transformation_time_series_features", "value"),
+    prevent_initial_call=True
 )
 def update_style_pca_components(value):
     if value is None or value == "":
@@ -408,8 +500,9 @@ def update_style_pca_components(value):
     return max_n_components, feature_name
 
 @app.callback(
-    Output("input_transformation_time_series_dwt_feature_name", "value"),
+    Output("input_transformation_time_series_dwt_feature_name", "value", allow_duplicate=True),
     Input("dropdown_transformation_time_series_features", "value"),
+    prevent_initial_call=True
 )
 def update_style_pca_components(value):
     if value is None or value == "":
@@ -420,8 +513,9 @@ def update_style_pca_components(value):
     return feature_name
 
 @app.callback(
-    Output("slider_transformation_time_series_dwt_vanishing_moments", "min"),
-    Input("dropdown_transformation_time_series_dwt_wavelet", "value")
+    Output("slider_transformation_time_series_dwt_vanishing_moments", "min", allow_duplicate=True),
+    Input("dropdown_transformation_time_series_dwt_wavelet", "value"),
+    prevent_initial_call=True
 )
 def update_style_dwt_n(wavelet):
     if wavelet == list(WAVELETS.keys())[1]:
@@ -432,9 +526,10 @@ def update_style_dwt_n(wavelet):
     return min_n
 
 @app.callback(
-    Output("container_transformation_time_series_dwt", "style"),
+    Output("container_transformation_time_series_dwt", "style", allow_duplicate=True),
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
-    State("container_transformation_time_series_dwt", "style")
+    State("container_transformation_time_series_dwt", "style"),
+    prevent_initial_call=True
 )
 def update_style_dwt(method, style):
     if style is None:
@@ -447,12 +542,13 @@ def update_style_dwt(method, style):
     return style
 
 @app.callback(
-    Output("container_transformation_time_series_dwt_vanishing_moments", "style"),
+    Output("container_transformation_time_series_dwt_vanishing_moments", "style", allow_duplicate=True),
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
     Input("dropdown_transformation_time_series_dwt_wavelet", "value"),
-    State("container_transformation_time_series_dwt_vanishing_moments", "style")
+    State("container_transformation_time_series_dwt_vanishing_moments", "style"),
+    prevent_initial_call=True
 )
-def update_style_dwt(method, wavelet, style):
+def update_style_dwt_parameter(method, wavelet, style):
     if style is None:
         style = {}
     if method == TRANSFORMATIONS_TS[3] and wavelet != list(WAVELETS.keys())[3]:
@@ -462,9 +558,10 @@ def update_style_dwt(method, wavelet, style):
     return style
 
 @app.callback(
-    Output("container_transformation_time_series_shift", "style"),
+    Output("container_transformation_time_series_shift", "style", allow_duplicate=True),
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
-    State("container_transformation_time_series_shift", "style")
+    State("container_transformation_time_series_shift", "style"),
+    prevent_initial_call=True
 )
 def update_style_shifting(method, style):
     if style is None:
@@ -477,9 +574,10 @@ def update_style_shifting(method, style):
     return style
 
 @app.callback(
-    Output("container_transformation_time_series_sw", "style"),
+    Output("container_transformation_time_series_sw", "style", allow_duplicate=True),
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
-    State("container_transformation_time_series_sw", "style")
+    State("container_transformation_time_series_sw", "style"),
+    prevent_initial_call=True
 )
 def update_style_sliding_window(method, style):
     if style is None:
@@ -492,9 +590,10 @@ def update_style_sliding_window(method, style):
     return style
 
 @app.callback(
-    Output("container_transformation_time_series_diff", "style"),
+    Output("container_transformation_time_series_diff", "style", allow_duplicate=True),
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
-    State("container_transformation_time_series_diff", "style")
+    State("container_transformation_time_series_diff", "style"),
+    prevent_initial_call=True
 )
 def update_style_differencing(method, style):
     if style is None:
@@ -507,9 +606,10 @@ def update_style_differencing(method, style):
     return style
 
 @app.callback(
-    Output("container_transformation_time_series_sgf", "style"),
+    Output("container_transformation_time_series_sgf", "style", allow_duplicate=True),
     Input("dropdown_transformation_time_series_feature_transformation", "value"),
-    State("container_transformation_time_series_sgf", "style")
+    State("container_transformation_time_series_sgf", "style"),
+    prevent_initial_call=True
 )
 def update_style_differencing(method, style):
     if style is None:
@@ -523,9 +623,10 @@ def update_style_differencing(method, style):
 
 # update parameter
 @app.callback(
-    Output("slider_transformation_time_series_sgf_periods", "value"),
+    Output("slider_transformation_time_series_sgf_periods", "value", allow_duplicate=True),
     Input("slider_transformation_time_series_sgf_polyorder", "value"),
     State("slider_transformation_time_series_sgf_periods", "value"),
+    prevent_initial_call=True
 )
 def update_sgf_periods(polyorder, periods):
     if polyorder is None or periods is None:
@@ -542,9 +643,10 @@ def update_sgf_periods(polyorder, periods):
         
 # update parameter
 @app.callback(
-    Output("slider_transformation_time_series_sgf_polyorder", "value"),
+    Output("slider_transformation_time_series_sgf_polyorder", "value", allow_duplicate=True),
     State("slider_transformation_time_series_sgf_polyorder", "value"),
     Input("slider_transformation_time_series_sgf_periods", "value"),
+    prevent_initial_call=True
 )
 def update_sgf_polyorder(polyorder, periods):
     if polyorder is None or periods is None:
@@ -556,45 +658,11 @@ def update_sgf_polyorder(polyorder, periods):
     else: 
         return periods - 1
 
-# update after selected dataset changes
-@app.callback(
-    Output("dropdown_classification_dataset", "options"),
-    Output("dropdown_classification_dataset", "value"),    
-    Output("dropdown_regression_dataset", "options"),
-    Output("dropdown_regression_dataset", "value"), 
-    #Output("rangeslider_transformation_time_series_overview", "min"),
-    #Output("rangeslider_transformation_time_series_overview", "max"),    
-    #Output("rangeslider_transformation_time_series_overview", "value"),
-    Input("dropdown_transformation_time_series_dataset", "options"),
-    State("dropdown_classification_dataset", "value"), 
-    State("dropdown_regression_dataset", "value")
-)
-def update_after_dataset_changes(datasets, dataset_name_classification, dataset_name_regression):
-    if datasets is None or datasets == []:
-        return dash.no_update
-    
-    
-    options = list(table_data.ALL_DATASETS.keys())
-    if dataset_name_classification not in options:
-        dataset_name_classification = options[0]
-        
-    if dataset_name_regression not in options:
-        dataset_name_regression = options[0]
-        
-    df = table_data.ALL_DATASETS[dataset_name_classification]
-    
-    # update rangeslider
-    min_range = df.index.min() 
-    max_range = df.index.max()
-    value_range = table_data.ALL_RANGES[dataset_name_classification]
-    
-    
-    return options, dataset_name_classification, options, dataset_name_regression#, min_range, max_range, value_range
 
 # update button styles
 @app.callback(
-    Output("button_transformation_time_series_apply", "style"),
-    Output("button_transformation_time_series_show", "style"),
+    Output("button_transformation_time_series_apply", "style", allow_duplicate=True),
+    Output("button_transformation_time_series_show", "style", allow_duplicate=True),
     Input("button_transformation_time_series_show", "n_clicks"),
     Input("dropdown_transformation_time_series_dataset", "value"),
     Input("dropdown_transformation_time_series_features", "value"),
@@ -616,7 +684,8 @@ def update_after_dataset_changes(datasets, dataset_name_classification, dataset_
     Input('slider_transformation_time_series_sgf_polyorder', 'value'),
     Input('slider_transformation_time_series_sgf_periods', 'value'),
     State("button_transformation_time_series_apply", "style"),
-    State("button_transformation_time_series_show", "style")
+    State("button_transformation_time_series_show", "style"),
+    prevent_initial_call=True
 )
 def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_feature_name, dwt_feature_name, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, sgf_poly_order, sgf_periods, style_apply, style_show):  
     if style_apply is None:
@@ -659,7 +728,7 @@ def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_featu
 # update line plot
 @app.callback(
     # update preview plot
-    Output("loading_transformation_time_series_preview", "children"),
+    Output("loading_transformation_time_series_preview", "children", allow_duplicate=True),
     # inputs
     Input("button_transformation_time_series_show", "n_clicks"),
     State("dropdown_transformation_time_series_dataset", "value"),
@@ -679,6 +748,7 @@ def update_style_buttons(n_clicks, dataset_name, features, method, v4, pca_featu
     State('slider_transformation_time_series_diff_periods', 'value'),
     State('slider_transformation_time_series_sgf_polyorder', 'value'),
     State('slider_transformation_time_series_sgf_periods', 'value'),
+    prevent_initial_call=True
 )
 def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, pca_feature_name, dwt_wavelet, dwt_mode, dwt_level, dwt_vanishing_moments, dwt_feature_name, shift_steps, shift_multi, sw_operations, sw_periods, diff_periods, sgf_poly_order, sgf_periods):
     if n_clicks is None or n_clicks == 0:
@@ -730,14 +800,14 @@ def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, 
 # update df and overview
 @app.callback(
     # update preview plot
-    Output('datatable_transformation_time_series_features', 'data'),
-    Output('datatable_transformation_time_series_features', 'data_previous'),
+    Output('datatable_transformation_time_series_features', 'data', allow_duplicate=True),
+    Output('datatable_transformation_time_series_features', 'data_previous', allow_duplicate=True),
     # update parameter
-    Output("dropdown_transformation_time_series_features", "options"),
-    Output("dropdown_transformation_time_series_features", "value"),
+    Output("dropdown_transformation_time_series_features", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_features", "value", allow_duplicate=True),
     # update overview
-    Output("dropdown_transformation_time_series_overview_feature", "options"),
-    Output("dropdown_transformation_time_series_overview_feature", "value"),
+    Output("dropdown_transformation_time_series_overview_feature", "options", allow_duplicate=True),
+    Output("dropdown_transformation_time_series_overview_feature", "value", allow_duplicate=True),
     # inputs
     Input("button_transformation_time_series_apply", "n_clicks"),
     State("dropdown_transformation_time_series_dataset", "value"),
@@ -758,6 +828,7 @@ def update_preview_plot(n_clicks, dataset_name, cols, method, pca_n_components, 
     State('slider_transformation_time_series_sgf_polyorder', 'value'),
     State('slider_transformation_time_series_sgf_periods', 'value'),
     State("dropdown_transformation_time_series_overview_feature", "value"),
+    prevent_initial_call=True
 )
 def update_overview(n_clicks, dataset_name, cols, method, pca_n_components, pca_feature_name, dwt_wavelet, dwt_mode, dwt_level, dwt_vanishing_moments, dwt_feature_name, shift_steps, shift_multi, sw_operations, sw_periods, diff_periods, sgf_poly_order, sgf_periods, value_overview):
     if n_clicks is None or n_clicks == 0:
@@ -809,3 +880,55 @@ def update_overview(n_clicks, dataset_name, cols, method, pca_n_components, pca_
     
     return data, None, options_features, value_parameter, options_features, value_overview
 
+@app.callback(
+    Output("img_time_series_strategy", "src", allow_duplicate=True),  
+    Output("link_time_series_strategy", "href", allow_duplicate=True),  
+    Output("tooltip_time_series_strategy", "children", allow_duplicate=True), 
+    Input("dropdown_transformation_time_series_feature_transformation", "value"), 
+    prevent_initial_call=True
+)
+def update_info(strategy):
+    if strategy == TRANSFORMATIONS_TS[0]:
+        src = '/assets/img/tooltip.png'
+        href = TRANSFORMATIONS_LINKS[0]
+        children = TRANSFORMATIONS_DESCRIPTIONS[0]
+    elif strategy == TRANSFORMATIONS_TS[1]:
+        src = '/assets/img/tooltip.png'
+        href = TRANSFORMATIONS_LINKS[1]
+        children = TRANSFORMATIONS_DESCRIPTIONS[1]
+    elif strategy == TRANSFORMATIONS_TS[2]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[2]
+        children = TRANSFORMATIONS_DESCRIPTIONS[2]
+    elif strategy == TRANSFORMATIONS_TS[3]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[3]
+        children = TRANSFORMATIONS_DESCRIPTIONS[3]
+    elif strategy == TRANSFORMATIONS_TS[4]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[4]
+        children = TRANSFORMATIONS_DESCRIPTIONS[4]
+    elif strategy == TRANSFORMATIONS_TS[5]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[5]
+        children = TRANSFORMATIONS_DESCRIPTIONS[5]
+    elif strategy == TRANSFORMATIONS_TS[6]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[6]
+        children = TRANSFORMATIONS_DESCRIPTIONS[6]
+    elif strategy == TRANSFORMATIONS_TS[7]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[7]
+        children = TRANSFORMATIONS_DESCRIPTIONS[7]
+    elif strategy == TRANSFORMATIONS_TS[8]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[8]
+        children = TRANSFORMATIONS_DESCRIPTIONS[8]
+    elif strategy == TRANSFORMATIONS_TS[9]:
+        src = '/assets/img/link.png'
+        href = TRANSFORMATIONS_LINKS[9]
+        children = TRANSFORMATIONS_DESCRIPTIONS[9]
+    else:
+        return dash.no_update
+
+    return src, href, children

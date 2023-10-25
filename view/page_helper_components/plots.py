@@ -1,39 +1,33 @@
 import plotly.express as px
 import plotly.graph_objs as go
 import numpy as np
+import random
 
 # import util
 from methods.util import is_close
 
+from methods.data_exploration.analyse import NUMERICS
+
 PLOTS = ['Line Plot', 'Histogram', 'Correlations', 'Scatter Plot', 'Violin Plot']
 
-def get_overview_histogram_plot(df, cols):
-    if type(cols) == str:
-        cols = [cols]
-    
-    figure = go.Figure()
-    
-    for i, col in enumerate(cols):
-        if i > 5:
-            is_visible = 'legendonly'
-        else:
-            is_visible = True
-            
-        figure.add_trace(
-            go.Histogram(
-                x=df[col], 
-                name=col, 
-                visible=is_visible)
-        )
+def get_overview_histogram_plot(df, col):
+    if type(col) == list:
+        col = col[0]
         
-    figure.update_layout(barmode='overlay')
-    figure.update_traces(opacity=0.75)
+    figure = px.histogram(df, x=col)
+    
+    figure.update_layout(
+    xaxis_title=col,
+    yaxis_title='frequency',
+    bargap=0.1)
     
     return figure
 
 def get_overview_line_plot(df, cols, index='index'):
     if type(cols) == str:
         cols = [cols]
+        
+    df = df.select_dtypes(include=NUMERICS)
     
     figure = go.Figure()
     
@@ -43,27 +37,62 @@ def get_overview_line_plot(df, cols, index='index'):
         x = df.index
     
     for i, col in enumerate(cols):
-        if i > 5:
-            is_visible = 'legendonly'
-        else:
-            is_visible = True
-            
         figure.add_trace(
             go.Scatter(
                 x=x, 
                 y=df[col], 
-                name=col, 
-                visible=is_visible)
+                name=col)
         )
+        
+    figure.update_yaxes(title_text="features")
+    figure.update_xaxes(title_text=index)
         
     return figure
 
-def get_overview_scatter_plot(df, col1, col2):
-    figure = px.scatter(df, x=col1, y=col2)
+def get_overview_violin_plot(df, cols, index='index'):
+    if type(cols) == str:
+        cols = [cols]
+        
+    figure = go.Figure()
+    
+    for index, col in enumerate(cols):
+        figure.add_trace(go.Violin(y=df[col], box_visible=True, meanline_visible=True, opacity=0.6, name=col))
+        
+    figure.update_xaxes(title_text='features')
+    figure.update_yaxes(title_text='distribution')
+        
+    return figure
+
+def get_overview_scatter_plot(df, col1, col2, target=None):
+    if target is None:
+        df = df.select_dtypes(include=NUMERICS)
+        figure = px.scatter(df, x=col1, y=col2) 
+    else:
+        random.seed(42)
+        
+        unique_classes = df[target].unique().tolist()
+        
+        # Generate a random color for each class
+        class_colors = {cls: f'{str(cls)}' for cls in unique_classes}
+        
+        # Map class labels to colors for each data point
+        df['color'] = df[target].map(class_colors)
+
+        # Create the scatterplot using Plotly Express
+        figure = px.scatter(df, x=col1, y=col2, color='color')
+
+        # Customize the legend
+        figure.update_layout(legend_title_text=target)  # Set the legend title to the target column name
+        
+        # Update the legend labels to show class mappings
+        legend_labels = {cls: f'{cls}: {class_colors[cls]}' for cls in unique_classes}
+        #figure.update_layout(legend=dict(title_text=target, title=list(legend_labels.items())))
+    
     
     return figure
 
 def get_overview_heatmap(df):
+    
     figure = px.imshow(df)
     
     return figure
@@ -128,6 +157,8 @@ def get_na_bar_plot(df):
         x = 'index',
         y = '#NA'
     )
+    
+    figure.update_yaxes(title_text="# missing")
     
     return figure
     

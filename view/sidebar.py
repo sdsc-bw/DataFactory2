@@ -4,50 +4,37 @@ from dash import Input, Output, State, dcc, html
 
 from view.app import app
 
-# the style arguments for the sidebar. We use position:fixed and a fixed width
-SIDEBAR_STYLE = {
-    "position": "fixed",
-    "top": 0,
-    "left": 0,
-    "bottom": 0,
-    "width": "33rem",
-    "padding": "2rem 1rem",
-    "background-color": "#f8f9fa",
-    "overflow": "scroll"
-}
-
 
 
 # ---------------------------------- SUBMENU 1 ---------------------------------------
+BUTTON_STYLE = {
+    "text-transform": "none", 
+    'margin-top': "0.5rem",
+    'background-color': 'royalblue',
+    "font-family": "Times New Roman",
+    "font-size": "16pt"}
+
+BUTTON_STYLE2 = {
+    "text-transform": "none", 
+    'margin-top': "0.5rem",
+    'background-color': 'navy',
+    "font-family": "Times New Roman",
+    "font-size": "16pt"}
 
 button_dl = dbc.Button(
     "Data Loading",
-    outline=False,
-    #active=True,
-    color="primary",
+    id="button_loading",
     href="/page-1/0",
-    #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE2,
 )
 
 button_do = dbc.Button(
     "Data Overview",
     id="button_overview",
-    outline=False,
-    #active=True,
     color="primary",
     href="/page-1/1",
     disabled=True,
-    #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 
@@ -60,15 +47,11 @@ button_cf = dbc.Button(
     href="/page-1/2",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 button_na = dbc.Button(
-    "NA Values",
+    "Missing Values",
     id="button_na_values",
     outline=False,
     #active=True,
@@ -76,11 +59,7 @@ button_na = dbc.Button(
     href="/page-1/3",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 button_od = dbc.Button(
@@ -92,11 +71,7 @@ button_od = dbc.Button(
     href="/page-1/4",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 submenu_1 = [
@@ -156,11 +131,7 @@ button_td = dbc.Button(
     href="/page-2/1",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 
@@ -187,11 +158,7 @@ button_pm = dbc.Button(
     href="/page-2/5",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 
@@ -203,11 +170,7 @@ button_pd = dbc.Button(
     href="/page-2/3",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 button_id = dbc.Button(
@@ -218,11 +181,7 @@ button_id = dbc.Button(
     href="/page-2/4",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 button_ts = dbc.Button(
@@ -234,11 +193,7 @@ button_ts = dbc.Button(
     href="/page-2/2",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 submenu_2 = [
@@ -301,11 +256,7 @@ button_sc = dbc.Button(
     href="/page-3/1",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 button_sr = dbc.Button(
@@ -317,11 +268,7 @@ button_sr = dbc.Button(
     href="/page-3/2",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 button_usl = dbc.Button(
@@ -333,11 +280,7 @@ button_usl = dbc.Button(
     href="/page-3/3",
     disabled=True,
     #id="gh-link",
-    style={
-        "text-transform": "none", 
-        'margin-top': "0.5rem",
-        "font-family": 
-        "Times New Roman","font-size": "16pt"},
+    style=BUTTON_STYLE,
 )
 
 submenu_3 = [
@@ -403,34 +346,75 @@ button_report_bugs = dbc.Button(
 
 
 
+#def sidebar():
+#    layout = html.Div(
+#        [
+#            #html.H2("WEFA Inotec", className="display-7"),
+#            html.A(
+#                href = "https://wefa.com/",
+#                children=[
+#                    html.Img(src=app.get_asset_url('./img/logo.png'), style={"width": "30rem"}),
+#                ]
+#            ),
+#            
+#            html.Hr(style={'borderWidth': "0.3vh", "width": "100%", "borderColor": "black", "borderStyle":"solid"}),
+#            dbc.Nav(
+#                submenu_1 + submenu_2 + submenu_3, 
+#                vertical=True,
+#                pills=False,
+		    	#style = {"padding": "50px 50px 50px 50px"}
+#	    	),
+            #html.Div(submenu_1 + submenu_2 + submenu_3),
+            #html.Div(submenu_2),
+            #html.Div(submenu_3),
+#            html.Div(
+#                dbc.Row(
+#                    [
+#                        dbc.Col(html.Img(src=app.get_asset_url('./img/kit.png'),style={"width": "10rem", "display": "flex",
+#        "justify-content": "center"})),
+#                        dbc.Col(button_report_bugs,style={"display": "flex",
+#        "justify-content": "center"}),
+#                    ]
+#                ),
+#                style={"margin":"2rem"},
+#            ),
+#        ],
+#        style=SIDEBAR_STYLE,
+#        id="sidebar",
+#    )
+#    return layout
+
+SIDEBAR_STYLE = {
+    "position": "fixed",
+    "top": 0,
+    "left": 0,
+    "bottom": 0,
+    "width": "33rem",
+    "padding": "2rem 1rem",
+    "background-color": "#f8f9fa",
+    "overflow": "scroll"
+}
+
 def sidebar():
     layout = html.Div(
         [
-            #html.H2("WEFA Inotec", className="display-7"),
             html.A(
-                href = "https://wefa.com/",
+                href = "https://www.sdsc-bw.de/",
                 children=[
-                    html.Img(src=app.get_asset_url('./img/logo.png'), style={"width": "30rem"}),
+                    html.Img(src=app.get_asset_url('./img/logo.png'), className="siderbar_logo"),
                 ]
             ),
-            
-            html.Hr(style={'borderWidth': "0.3vh", "width": "100%", "borderColor": "black", "borderStyle":"solid"}),
+            html.Hr(className="sidebar_hr"),
             dbc.Nav(
                 submenu_1 + submenu_2 + submenu_3, 
                 vertical=True,
                 pills=False,
-		    	#style = {"padding": "50px 50px 50px 50px"}
-	    	),
-            #html.Div(submenu_1 + submenu_2 + submenu_3),
-            #html.Div(submenu_2),
-            #html.Div(submenu_3),
+            ),
             html.Div(
                 dbc.Row(
                     [
-                        dbc.Col(html.Img(src=app.get_asset_url('./img/kit.png'),style={"width": "10rem", "display": "flex",
-        "justify-content": "center"})),
-                        dbc.Col(button_report_bugs,style={"display": "flex",
-        "justify-content": "center"}),
+                        dbc.Col(html.Img(src=app.get_asset_url('./img/kit.png'), className="sidebar_kit")),
+                        dbc.Col(button_report_bugs, className="sidebar_report_bugs"),
                     ]
                 ),
                 style={"margin":"2rem"},
@@ -439,4 +423,9 @@ def sidebar():
         style=SIDEBAR_STYLE,
         id="sidebar",
     )
+    
     return layout
+                        
+                        
+                        
+       

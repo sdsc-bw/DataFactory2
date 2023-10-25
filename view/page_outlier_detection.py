@@ -18,11 +18,11 @@ from data import table_data
 # import callbacks
 from callbacks.page_outlier_detection_callbacks import *
 
-# import analyse methods
-from methods.data_exploration.analyse import *
-
 # import detection methods
 from methods.data_exploration.outlier_detection import *
+
+# import analyse methods
+from methods.data_exploration.analyse import *
 
 ######################################
 ## First layer method: create panel ##
@@ -139,7 +139,38 @@ def create_container_for_parameter():
             dbc.CardBody(
                 [
                     dbc.Card([
-                        dbc.CardHeader("Method:", className='card_subheader'),
+                        dbc.CardHeader("Features:", className='card_subheader'),
+                        dbc.CardBody([
+                            dcc.Dropdown(
+                                id='dropdown_outlier_feature',
+                                options=[],
+                                value=None,
+                                className='dropdown_overview_multi_feature',
+                                clearable=False,
+                                multi=True,
+                            ),
+                            dcc.Checklist(
+                                id='checklist_outlier_all_features',
+                                options=['Select all features'],
+                                value=[],
+                                inputStyle={"margin-right": "0.5rem",},
+                            )
+                        ]),
+                        
+                    ],
+                        className='card_subcontainer',
+                    ),
+                    dbc.Card([
+                        dbc.CardHeader([
+                            "Method:",
+                            dcc.Link(
+                                html.Img(src='/assets/img/link.png', id='img_outlier_strategy', className='tooltip_img'),
+                                id='link_outlier_strategy',
+                                href='https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html',
+                                target='_blank',
+                            ),
+                            dbc.Tooltip("This method normalizes the values of the selected features between 0 and 1.", target='img_outlier_strategy', id='tooltip_outlier_strategy'),
+                        ], className='card_subheader'),
                         dbc.CardBody([
                             dcc.Dropdown(
                                 id='dropdown_outlier_method',
@@ -158,7 +189,7 @@ def create_container_for_parameter():
                     create_container_for_kv_detector(),
                     
                     html.Div([
-                        dbc.Button("Remove", color = "primary", id="button_outlier_apply", className='btn_apply')
+                        dbc.Button("Remove", color = "primary", id="button_outlier_apply", className='btn_apply', style={'display': 'none'})
                     ], className="btn_aligned_right"),
                     
                     html.Div([
@@ -180,7 +211,7 @@ def create_container_for_parameter():
 def create_container_for_random_forest_detector():
     layout = html.Div(
         [
-            #add_container_for_warm_start('container_outlier_random_forest_warm_start', 'check_outlier_random_forest_warm_start'),
+            add_container_for_contamination('container_outlier_random_forest_contamination', 'dropdown_outlier_random_forest_contamination'),
             add_container_for_n_estimators('container_outlier_random_forest_n_estimators', 'slider_outlier_random_forest_n_estimators'),
         ],
         style={'display': 'block'},
@@ -254,7 +285,9 @@ def create_container_for_density_detector():
     layout = html.Div(
         [
             add_container_for_n_neighbors('container_outlier_densitiy_n_neighbors', 'slider_outlier_densitiy_n_neighbors'),
-#            add_container_for_contamination('container_outlier_densitiy_contamination', 'slider_outlier_densitiy_contamination')
+            add_container_for_contamination('container_outlier_densitiy_contamination', 'dropdown_outlier_densitiy_contamination'),
+            add_container_for_metric('container_outlier_densitiy_metric', 'dropdown_outlier_densitiy_metric'),
+            add_container_for_n_p('container_outlier_densitiy_p', 'dropdown_outlier_densitiy_p'),
             add_container_for_algorithm('container_outlier_densitiy_algorithm', 'dropdown_outlier_densitiy_algorithm'),
         ],
         style={'display': 'none'},
@@ -314,23 +347,42 @@ def add_container_for_algorithm(id_container, id_dropdown):
         
     return layout
 
-def add_container_for_contamination(id_container, id_slider):
+def add_container_for_metric(id_container, id_dropdown):
     layout = dbc.Card([
-        dbc.CardHeader("Proportion of Outliers:", className='card_subheader'),
+        dbc.CardHeader("Metric:", className='card_subheader'),
         dbc.CardBody([
+             dcc.Dropdown(
+                id=id_dropdown,
+                options=[{'label': i, 'value': i} for i in OUTLIER_DETECTION_LOCAL_OUTLIER_FACTOR_METRIC.keys()],
+                value=list(OUTLIER_DETECTION_LOCAL_OUTLIER_FACTOR_METRIC.keys())[0],
+                className='dropdown_overview_multi_feature',
+                clearable=False,
+            ),
+        ],
+            
+        ),
+    ],
+        className='card_subcontainer',
+        style={'display': 'block'},
+        id=id_container,
+    )
+        
+    return layout
+
+def add_container_for_n_p(id_container, id_slider):
+    layout = dbc.Card([
+        dbc.CardHeader("P:", className='card_subheader'),
+        dbc.CardBody([            
             dcc.Slider(
-                id="id_slider",
-                min=0.01,
-                max=0.99,
-                step=0.01,
-                value=0.1,
+                id=id_slider,
+                step=1,
+                value=2,
                 marks={
-                    0.01:"0.01",
-                    0.1:"0.1",
-                    0.2:"0.2",
-                    0.3:"0.3",
-                    0.4:"0.4",
-                    0.5:"0.5",
+                    1:"1",
+                    2:"2",
+                    3:"3",
+                    4:"4",
+                    5:"5",
                 },
                 tooltip={"placement": "bottom", "always_visible": False}
             ),
@@ -348,7 +400,6 @@ def add_container_for_contamination(id_container, id_slider):
 def create_container_for_kv_detector():
     layout = html.Div(
         [
-            add_container_for_feature('container_outlier_kv_feature', 'dropdown_outlier_kv_feature'),
         ],
         style={'display': 'none'},
         id='container_outlier_kv'
@@ -372,6 +423,28 @@ def add_container_for_feature(id_container, id_dropdown):
         ),
     ],
         className='card_subcontainer',
+        id=id_container,
+    )
+        
+    return layout
+
+def add_container_for_contamination(id_container, id_dropdown):
+    layout = dbc.Card([
+        dbc.CardHeader("Contamination:", className='card_subheader'),
+        dbc.CardBody([
+             dcc.Dropdown(
+                id=id_dropdown,
+                options={'auto': 'Auto', '0.01': 0.01, '0.02': 0.02, '0.03': 0.03, '0.04': 0.04, '0.5': 0.05, '0.1': 0.1, '0.2': 0.2, '0.3': 0.3, '0.4': 0.4, '0.5': 0.5},
+                value='auto',
+                className='dropdown_overview_multi_feature',
+                clearable=False,
+            ),
+        ],
+            
+        ),
+    ],
+        className='card_subcontainer',
+        style={'display': 'block'},
         id=id_container,
     )
         

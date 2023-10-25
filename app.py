@@ -12,7 +12,7 @@ from view import sidebar
 from callbacks import sidebar_callbacks
 
 # import pages
-from view import page_data_loading, page_overview, page_categorical_feature, page_na_value, page_outlier_detection, page_transformation_table_data, page_transformation_time_series, page_supervised_classification, page_supervised_regression
+from view import page_data_loading, page_overview, page_categorical_feature, page_na_value, page_outlier_detection, page_transformation_time_series, page_supervised_classification, page_supervised_regression
 
 # the styles for the main content position it to the right of the sidebar and
 # add some padding.
@@ -41,7 +41,7 @@ content = html.Div(
     id="page_content", style=CONTENT_STYLE
 )
 
-app.layout = html.Div([dcc.Location(id="url"), sidebar_, content])
+app.layout = html.Div([dcc.Location(id="url", refresh=False), sidebar_, content])
 
 
 

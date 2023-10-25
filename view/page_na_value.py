@@ -41,7 +41,7 @@ def create_data_navalue_panel():
                 [
                     dbc.CardHeader(
                         [
-                            "NA Imputing"
+                            "Impute Missing Values"
                         ],
                         className='card_header'
                     ),
@@ -79,7 +79,7 @@ def create_na_bar_plot():
                 [
                     dbc.CardHeader(
                         [
-                            "Number of NA Values",
+                            "Number of Missing Values",
                         ],
                         className='card_header'),
                     dbc.CardBody(
@@ -104,7 +104,7 @@ def create_na_heatmap_plot():
                 [
                     dbc.CardHeader(
                         [
-                            "Position of NA Values",
+                            "Position of Missing Values",
                         ],
                         className='card_header'),
                     dbc.CardBody(
@@ -130,7 +130,7 @@ def create_container_for_parameter():
             dbc.CardBody(
                 [
                     dbc.Card([
-                        dbc.CardHeader("Feature:", className='card_subheader'),
+                        dbc.CardHeader("Missing Features:", className='card_subheader'),
                         dbc.CardBody([
                             dcc.Dropdown(
                                 id='dropdown_na_feature',
@@ -138,14 +138,25 @@ def create_container_for_parameter():
                                 value=None,
                                 className='dropdown_overview_multi_feature',
                                 clearable=False,
+                                multi=False,
                             ),
                         ]),
+                        
                     ],
                         className='card_subcontainer',
                     ),
                     
                     dbc.Card([
-                        dbc.CardHeader("Method:", className='card_subheader'),
+                        dbc.CardHeader([
+                            "Method:",
+                            dcc.Link(
+                                html.Img(src='/assets/img/link.png', id='img_na_strategy', className='tooltip_img'),
+                                id='link_na_strategy',
+                                href='https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html',
+                                target='_blank',
+                            ),
+                            dbc.Tooltip("Read more", target='img_na_strategy', id='tooltip_na_strategy'),
+                        ], className='card_subheader'),
                         dbc.CardBody([
                             dcc.Dropdown(
                                 id='dropdown_na_method',
@@ -203,7 +214,9 @@ def create_container_for_iterative_parameter():
     
     layout = html.Div(
         [
+            add_container_for_fill_features('container_na_iterative_filling_feature', 'dropdown_na_iterative_filling_feature', 'checkbox_na_iterative_filling_feature'),
             add_container_for_max_iter('container_na_iterative_max_iter', 'slider_na_iterative_max_iter'),
+            add_container_for_tolerance('container_na_iterative_tol', 'dropdown_na_iterative_tol'),
             add_container_for_n_nearest_features('container_na_iterative_n_nearest_features', 'slider_na_iterative_n_nearest_features'),
             add_container_for_initial_strategy('container_na_iterative_initial_strategy', 'dropdown_na_iterative_initial_strategy'),
             add_container_for_initial_fill_value('container_na_iterative_fill_value', 'dropdown_na_iterative_fill_value'),
@@ -220,8 +233,9 @@ def create_container_for_knn_parameter():
     
     layout = html.Div(
         [
+            add_container_for_fill_features('container_na_knn_filling_feature', 'dropdown_na_knn_filling_feature', 'checkbox_na_knn_filling_feature'),
             add_container_for_n_neighbors('container_na_knn_n_neighbors', 'slider_na_knn_n_neighbors'),
-            add_container_for_weights('container_na_iterative_weights', 'dropdown_na_iterative_weights')
+            add_container_for_weights('container_na_knn_weights', 'dropdown_na_knn_weights')
         ],
         style={'display': 'none'},
         id='container_na_knn'
@@ -235,7 +249,7 @@ def create_container_for_manual_parameter():
     layout = html.Div(
         [
             add_container_for_index('container_na_manual_index', 'input_na_manual_index'),
-            add_container_for_fill_value('container_na_manual_fill_value', 'input_na_manual_fill_value')
+            add_container_for_fill_value('container_na_manual_fill_value', 'input_na_manual_fill_value', 'block')
         ],
         style={'display': 'none'},
         id='container_na_manual'
@@ -266,7 +280,35 @@ def add_container_for_strategy(id_container, id_dropdown):
         
     return layout
 
-def add_container_for_fill_value(id_container, id_input):
+def add_container_for_fill_features(id_container, id_dropdown, id_checkbox):
+    layout = dbc.Card([
+        dbc.CardHeader("Features Used For Filling:", className='card_subheader'),
+        dbc.CardBody([
+            dcc.Dropdown(
+                id=id_dropdown,
+                options=[],
+                value=None,
+                className='dropdown_overview_multi_feature',
+                multi=True,
+            ),
+            dcc.Checklist(
+                id=id_checkbox,
+                options=['Select all features'],
+                value=[],
+                inputStyle={"margin-right": "0.5rem",},
+            )
+        ],
+            
+        ),
+    ],
+        className='card_subcontainer',
+        style={'display': 'block'},
+        id=id_container,
+    )
+        
+    return layout
+
+def add_container_for_fill_value(id_container, id_input, display='none'):
     layout = dbc.Card([
         dbc.CardHeader("Fill Value:", className='card_subheader'),
         dbc.CardBody([
@@ -282,7 +324,7 @@ def add_container_for_fill_value(id_container, id_input):
         ),
     ],
         className='card_subcontainer',
-        style={'display': 'block'},
+        style={'display': display},
         id=id_container,
     )
         
@@ -296,7 +338,15 @@ def add_container_for_max_iter(id_container, id_slider, min_iter=1, max_iter=20,
                  id=id_slider, 
                  min=min_iter, 
                  max=max_iter, 
-                 marks = {i: {'label': str(round(i))} for i in np.arange(min_iter, max_iter, (max_iter-min_iter)/5)},
+                 marks={
+                    1:"1",
+                    5:"5",
+                    10:"10",
+                    15:"15",
+                    20:"20",
+                    25:"25",
+                    30:"30",
+                },
                  step=1,
                  value=value,
                  tooltip={"placement": "top", "always_visible": False},
@@ -306,6 +356,7 @@ def add_container_for_max_iter(id_container, id_slider, min_iter=1, max_iter=20,
         ),
     ],
         className='card_subcontainer',
+        style={'display': 'block'},
         id=id_container,
     )
         
@@ -314,15 +365,16 @@ def add_container_for_max_iter(id_container, id_slider, min_iter=1, max_iter=20,
 def add_container_for_n_nearest_features(id_container, id_slider, min_features=1, max_features=2):
     value = max_features
     layout = dbc.Card([
-        dbc.CardHeader("Number of Nearest Features", className='card_subheader'),
+        dbc.CardHeader("Number of Nearest Features:", className='card_subheader'),
         dbc.CardBody([
              dcc.Slider(
-                 id=id_slider, 
-                 min=min_features, 
-                 max=max_features, 
-                 marks = {i: {'label': str(round(i))} for i in np.arange(min_features, max_features, (max_features-min_features)/5)},
+                 id=id_slider,
+                 marks={
+                    1:"1",
+                    2:"None",
+                },
                  step=1,
-                 value=value,
+                 value=2,
                  tooltip={"placement": "top", "always_visible": False},
              ),
         ],
@@ -330,10 +382,33 @@ def add_container_for_n_nearest_features(id_container, id_slider, min_features=1
         ),
     ],
         className='card_subcontainer',
+        style={'display': 'block'},
         id=id_container,
     )
         
-    return layout  
+    return layout
+
+def add_container_for_tolerance(id_container, id_dropdown):
+    layout = dbc.Card([
+        dbc.CardHeader("Tolerance:", className='card_subheader'),
+        dbc.CardBody([
+             dcc.Dropdown(
+                id=id_dropdown,
+                options=[0.1, 0.01, 0.001],
+                value=0.001,
+                className='dropdown_overview_multi_feature',
+                clearable=False,
+            ),
+        ],
+            
+        ),
+    ],
+        className='card_subcontainer',
+        style={'display': 'block'},
+        id=id_container,
+    )
+        
+    return layout
 
 def add_container_for_initial_strategy(id_container, id_dropdown):
     layout = dbc.Card([
@@ -408,8 +483,7 @@ def add_container_for_n_neighbors(id_container, id_slider, min_neighbors=1, max_
              dcc.Slider(
                  id=id_slider, 
                  min=min_neighbors, 
-                 max=max_neighbors, 
-                 marks = {i: {'label': str(round(i))} for i in np.arange(min_neighbors, max_neighbors, (max_neighbors-min_neighbors)/5)},
+                 max=max_neighbors,
                  step=1,
                  value=value,
                  tooltip={"placement": "top", "always_visible": False},
@@ -419,6 +493,7 @@ def add_container_for_n_neighbors(id_container, id_slider, min_neighbors=1, max_
         ),
     ],
         className='card_subcontainer',
+        style={'display': 'block'},
         id=id_container,
     )
         
@@ -426,7 +501,7 @@ def add_container_for_n_neighbors(id_container, id_slider, min_neighbors=1, max_
 
 def add_container_for_weights(id_container, id_dropdown):
     layout = dbc.Card([
-        dbc.CardHeader("Imputation Order:", className='card_subheader'),
+        dbc.CardHeader("Weight Function:", className='card_subheader'),
         dbc.CardBody([
             dcc.Dropdown(
                 id=id_dropdown,

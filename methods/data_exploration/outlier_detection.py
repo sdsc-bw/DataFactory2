@@ -6,8 +6,12 @@ from sklearn.decomposition import PCA
 from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
 
-OUTLIER_DETECTION_METHODS = ["Random Forest Detector", "Densitiy Detector", "KV Detector"]
+OUTLIER_DETECTION_METHODS = ["Isolation Forest", "Local Outlier Detector", "KV Detector"]
 OUTLIER_DETECTION_LOCAL_ALGORITHM = {"Auto": "auto", "Ball Tree": "ball_tree", "KD Tree": "kd_tree", "Brute": "brute"}
+OUTLIER_DETECTION_LOCAL_OUTLIER_FACTOR_METRIC = {'Minkowski': 'minkowski', 'Euclidean': 'euclidean', 'Manhattan': 'manhattan', 'Chebyshev': 'chebyshev', 'Mahalanobis': 'mahalanobis'}
+
+OUTLIER_LINKS = ['https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.IsolationForest.html', 'https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html', '']
+OUTLIER_DESCRIPTIONS = ['Read more', 'Read more', 'This method is using the interquartile range (IQR) and mean. Datapoints that are more than 3 times the IQR away from the mean in either direction are considered outliers.']
 
 def apply_outlier_detection(df, method, params):
     if method == OUTLIER_DETECTION_METHODS[0]:

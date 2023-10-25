@@ -10,6 +10,9 @@ IMPUTER_METHODS = ['Simple Imputer', 'Iterative Imputer', 'KNN Imputer', 'Manual
 IMPUTER_STRATEGIES = {'Mean': 'mean', 'Median': 'median', 'Most Frequent': 'most_frequent', 'Constant': 'constant'}
 IMPUTER_ORDER = {'Ascending': 'ascending', 'Descending': 'descending', 'Roman': 'roman', 'Arabic': 'arabic', 'Random': 'random'}
 IMPUTER_WEIGHTS =  {'Uniform': 'uniform', 'Distance': 'distance'}
+
+IMPUTER_LINKS = ['https://scikit-learn.org/stable/modules/generated/sklearn.impute.SimpleImputer.html', 'https://scikit-learn.org/stable/modules/generated/sklearn.impute.IterativeImputer.html', 'https://scikit-learn.org/stable/modules/generated/sklearn.impute.KNNImputer.html', '']
+IMPUTER_DESCRIPTIONS = ['Read more', 'Read more', 'Read more', 'Allows to change the feature value of a certain index.']
         
 def apply_imputing(df, cols, method, params):
     df = df.copy(deep=True)
@@ -41,15 +44,16 @@ def apply_iterative_imputer(df, cols, params):
     
     transformed_data = imputer.fit_transform(df[cols])
     
-    iterated_df = pd.DataFrame(transformed_data, columns=cols, index=df.index)
-    df.loc[:, cols] = iterated_df
+    df = pd.DataFrame(transformed_data[:, 0], columns=[cols[0]], index=df.index)
     
     return df
         
 def apply_knn_imputer(df, cols, params):
     imputer = KNNImputer(**params)
     
-    df = pd.DataFrame(imputer.fit_transform(df[cols]), columns=cols)
+    transformed_data = imputer.fit_transform(df[cols])
+    
+    df = pd.DataFrame(transformed_data[:, 0], columns=[cols[0]], index=df.index)
     
     return df
     

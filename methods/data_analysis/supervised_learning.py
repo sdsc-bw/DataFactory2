@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from xgboost import XGBClassifier, XGBRegressor
+#from xgboost import XGBClassifier, XGBRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.dummy import DummyClassifier, DummyRegressor
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -14,8 +14,8 @@ from sklearn.utils import shuffle
 
 
 
-CLASSFIER = ["Baseline", "KNN", "Random Forest", "Gradient Boosting"]
-REGRESSOR = ["Baseline", "Linear", "Random Forest", "Gradient Boosting"]
+CLASSFIER = ["Baseline", "KNN", "Random Forest"]
+REGRESSOR = ["Baseline", "Linear", "Random Forest"]
 
 CLASSIFIER_BASELINE_STRATEGY = {"Prior": "prior", "Most Frequent": "most_frequent", "Stratified": "stratified", "Constant": "constant", "Look Back": "look_back"}
 REGRESSOR_BASELINE_STRATEGY = {"Mean": "mean", "Median": "median", "Quantile": "quantile", "Constant": "constant", "Look Back": "look_back"}
@@ -24,10 +24,19 @@ CLASSIFIER_KNN_ALGORITHM = {"Auto": "auto", "Ball Tree": "ball_tree", "KD Tree":
 CLASSIFIER_KNN_WEIGHTS =  {'Uniform': 'uniform', 'Distance': 'distance'}
 
 CLASSIFIER_RF_CRITERION = {"Gini": "gini", "Entropy": "entropy", "Log Loss": "log_loss"}
-REGRESSOR_RF_CRITERION = {"Squared Error": "squared_error", "Absolute error": "absolute_error", "Friedman MSE": "friedman_mse", "Poisson": "poisson"}
+REGRESSOR_RF_CRITERION = {"MSE": "mse", "Friedman MSE": "friedman_mse", "Poisson": "poisson"}
 
 CLASSIFIER_SCORING = {"Accuracy": "accuracy", "Accuracy Balanced": "balanced_accuracy", "F1 (Binary)": "f1", "F1 Micro": "f1_micro", "F1 Macro": "f1_macro", "F1 Weighted": "f1_weighted", "Precision (Binary)": "precision", "Precision Micro": "precision_micro", "Precision Macro": "precision_macro", "Precision Weighted": "precision_weighted", "Recall (Binary)": "recall", "Recall Micro": "recall_micro", "Recall Macro": "recall_macro", "Recall Weighted": "recall_weighted", "MAE": "neg_mean_absolute_error", "MSE": "neg_mean_squared_error" , "RMSE": "rmse"}
-REGRESSOR_SCORING ={"MAE": "neg_mean_absolute_error", "MSE": "neg_mean_squared_error" , "RMSE": "rmse", "R2": "r2", "Explained Variance": "explained_variance"}
+REGRESSOR_SCORING ={"MAE": "neg_mean_absolute_error", "MSE": "neg_mean_squared_error" , "R2": "r2", "Explained Variance": "explained_variance"}
+
+CLASSIFIER_LINKS = ['https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyClassifier.html', '', 'https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsClassifier.html', 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html']
+CLASSIFIER_DESCRIPTION = ['Read more', 'This method allows to use the mean of the previous values as baseline.', 'Read more', 'Read more']
+
+REGRESSOR_LINKS = ['https://scikit-learn.org/stable/modules/generated/sklearn.dummy.DummyRegressor.html', '', 'https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html', 'https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestRegressor.html']
+REGRESSOR_DESCRIPTION = ['Read more', 'This method allows to use the mean of the previous values as baseline.', 'Read more', 'Read more']
+
+TS_CROSS_VALIDATION_LINKS = ['https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html']
+TS_CROSS_VALIDATION_DESCRIPTION = ['Read more']
 
 def apply_classifier_prediction(df, target, train_size, model, params, ts_cross_val=False):
     # Extract the target values
@@ -54,16 +63,37 @@ def apply_classifier_prediction(df, target, train_size, model, params, ts_cross_
             clf = KNeighborsClassifier(**params)
         elif model == CLASSFIER[2]:
             clf = RandomForestClassifier(**params)        
-        elif model == CLASSFIER[3]:
-            clf = XGBClassifier(**params)
+        #elif model == CLASSFIER[3]:
+        #    clf = XGBClassifier(**params)
         
         clf.fit(X_train, y_train)
 
         y_train_pred = clf.predict(X_train)
         y_test_pred = clf.predict(X_test)
+        
+    # extract feature importance
+    feature_importance = []
+    feature_names = list(df.columns)
+    
+    if isinstance(clf, RandomForestClassifier):
+        if hasattr(clf, "feature_importances_"):
+            for feature_name, importance_score in zip(feature_names, clf.feature_importances_):
+                dict_importance = {}
+                dict_importance['Feature'] = feature_name
+                dict_importance['Importance'] = importance_score
+                feature_importance.append(dict_importance)
+    elif model == CLASSFIER[0]:
+        for feature_name in feature_names:
+            dict_importance = {}
+            dict_importance['Feature'] = feature_name
+            if target == feature_name:
+                dict_importance['Importance'] = 1.0
+            else:
+                dict_importance['Importance'] = 0.0
+            feature_importance.append(dict_importance)
     
         
-    return y_train, y_train_pred, y_test, y_test_pred
+    return y_train, y_train_pred, y_test, y_test_pred, feature_importance
 
 def apply_classifier(df, target, train_size, model, params, ts_cross_val=False, scoring='f1_macro'):
     # Extract the target values
@@ -101,8 +131,8 @@ def apply_classifier(df, target, train_size, model, params, ts_cross_val=False, 
             clf = KNeighborsClassifier(**params)
         elif model == CLASSFIER[2]:
             clf = RandomForestClassifier(**params)        
-        elif model == CLASSFIER[3]:
-            clf = XGBClassifier(**params)
+        #elif model == CLASSFIER[3]:
+        #    clf = XGBClassifier(**params)
 
         # evalutate classifier
         if ts_cross_val:
@@ -143,16 +173,44 @@ def apply_regressor_prediction(df, target, train_size, model, params, ts_cross_v
             reg = LinearRegression(**params)
         elif model == REGRESSOR[2]:
             reg = RandomForestRegressor(**params)        
-        elif model == REGRESSOR[3]:
-            reg = XGBRegressor(**params)
+        #elif model == REGRESSOR[3]:
+        #    reg = XGBRegressor(**params)
 
         reg.fit(X_train, y_train)
 
         y_train_pred = reg.predict(X_train)
         y_test_pred = reg.predict(X_test)
+        
+    # extract feature importance
+    feature_importance = []
+    feature_names = list(df.columns)
+
+    if isinstance(reg, RandomForestRegressor):
+        if hasattr(reg, "feature_importances_"):
+            for feature_name, importance_score in zip(feature_names, reg.feature_importances_):
+                dict_importance = {}
+                dict_importance['Feature'] = feature_name
+                dict_importance['Importance'] = importance_score
+                feature_importance.append(dict_importance)
+    elif isinstance(reg, LinearRegression):
+        if hasattr(reg, "coef_"):
+            for feature_name, coef in zip(feature_names, reg.coef_):
+                dict_importance = {}
+                dict_importance['Feature'] = feature_name
+                dict_importance['Importance'] = abs(coef)
+                feature_importance.append(dict_importance)
+    elif model == REGRESSOR[0]:
+        for feature_name in feature_names:
+            dict_importance = {}
+            dict_importance['Feature'] = feature_name
+            if target == feature_name:
+                dict_importance['Importance'] = 1.0
+            else:
+                dict_importance['Importance'] = 0.0
+            feature_importance.append(dict_importance)
     
         
-    return y_train, y_train_pred, y_test, y_test_pred
+    return y_train, y_train_pred, y_test, y_test_pred, feature_importance
     
     
 def apply_regressor(df, target, train_size, model, params, ts_cross_val=False, scoring='neg_mean_squared_error'):
@@ -191,8 +249,8 @@ def apply_regressor(df, target, train_size, model, params, ts_cross_val=False, s
             reg = LinearRegression(**params)
         elif model == REGRESSOR[2]:
             reg = RandomForestRegressor(**params)        
-        elif model == REGRESSOR[3]:
-            reg = XGBRegressor(**params)
+        #elif model == REGRESSOR[3]:
+        #    reg = XGBRegressor(**params)
 
         # evalutate classifier
         if ts_cross_val:
@@ -222,6 +280,12 @@ def cross_val(X, y, cv, model, scoring):
             fold_score = cross_val_score(model, X_train, y_train, cv=cv, scoring=scoring).mean()
 
         scores.append(fold_score)
+
+    # Convert negative mean squared errors to positive 
+    if scoring == 'neg_mean_squared_error' or scoring == 'neg_mean_absolute_error':
+        scores = [(-score) for score in scores]
+    elif scoring == 'rmse':
+        scores = [(-score) ** 0.5 for score in scores]
 
     df_scores = pd.DataFrame({'Fold': range(1, cv + 1), 'Score': scores})
 

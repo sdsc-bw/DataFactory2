@@ -14,7 +14,9 @@ from callbacks.page_categorical_feature_callbacks import *
 from data import table_data
 
 # import methods
-from methods.data_exploration.analyse import get_num_numeric_categorical
+from methods.data_exploration.encoder import *
+from methods.data_exploration.analyse import *
+from methods.cleaning import delete_columns
 
 # import figures
 from view.page_helper_components.plots import get_numeric_categorical_ratio_plot, get_categorical_feature_pie_plot
@@ -114,7 +116,16 @@ def create_container_for_parameter():
                     ),
                     
                     dbc.Card([
-                        dbc.CardHeader("Method:", className='card_subheader'),
+                        dbc.CardHeader([
+                            "Method:", 
+                            dcc.Link(
+                                html.Img(src='/assets/img/link.png', id='img_categorical_strategy', className='tooltip_img'),
+                                id='link_categorical_strategy',
+                                href='https://scikit-learn.org/0.16/modules/generated/sklearn.preprocessing.OneHotEncoder.html',
+                                target='_blank',
+                            ),
+                            dbc.Tooltip("Read more", target='img_categorical_strategy', id='tooltip_categorical_strategy'),
+                        ], className='card_subheader'),
                         dbc.CardBody([
                             dcc.Dropdown(
                                 id='dropdown_categorical_strategy',

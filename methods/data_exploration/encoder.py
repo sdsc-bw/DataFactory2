@@ -2,8 +2,10 @@
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import numpy as np
 import pandas as pd
+import math
 import plotly.express as px
 import plotly.graph_objs as go
+from dateutil import parser
 
 # import data
 from data import table_data
@@ -11,7 +13,11 @@ from data import table_data
 # import utility
 from methods.util import is_float
 
-ENCODING_STRATEGIES = ['One Hot Encoding', 'Label Encoding', 'Already Numeric', 'Replace Value']
+ENCODING_STRATEGIES = ['One Hot Encoding', 'Label Encoding', 'Date Encoding', 'Already Numeric', 'Replace Value']
+
+ENCODING_LINKS = ['https://scikit-learn.org/0.16/modules/generated/sklearn.preprocessing.OneHotEncoder.html', 'https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.LabelEncoder.html', 'https://ianlondon.github.io/blog/encoding-cyclical-features-24hour-time/', '', '']
+
+ENCODING_DESCRIPTIONS = ['Read more', 'Read more', 'Read more', 'This method is for categorical features that already contain only numbers.', 'This method is for replace certain feature values with another feature value of the same feature.']
 
 def apply_encoding(df, col, strategy, in_str='', out_str=''):
     df = df.copy(deep=True)
@@ -23,8 +29,10 @@ def apply_encoding(df, col, strategy, in_str='', out_str=''):
     elif strategy == ENCODING_STRATEGIES[1]:
         return apply_label_encoder(df, col)
     elif strategy == ENCODING_STRATEGIES[2]:
-        return apply_numeric(df, col)
+        return apply_date_encoder(df, col)
     elif strategy == ENCODING_STRATEGIES[3]:
+        return apply_numeric(df, col)
+    elif strategy == ENCODING_STRATEGIES[4]:
         return apply_replace_value(df, col, in_str, out_str)
     else:
         print(f"Unknown encoding strategy: {strategy}. Apply One Hot Encoding instead.")
@@ -49,10 +57,29 @@ def apply_label_encoder(df, cols):
         original = df[i]
         mask = df[i].isnull()
         df[i] = LabelEncoder().fit_transform(df[i].astype(str))
-        print(df[cols])
-        print(df[i].dtypes)
         df[i] = df[i].where(~mask, original)
         df[i] = df[i].apply(lambda x: int(x) if str(x) != 'nan' else np.nan)          
+    return df
+
+def apply_date_encoder(df, date_cols):
+    for col in date_cols:
+        df[col] = df[col].apply(lambda x: parser.parse(x) if isinstance(x, str) else x)
+
+        # Encode year linearly
+        df[col + ' year'] = df[col].dt.year
+
+        # Encode other components using sine and cosine functions
+        components = ['month', 'day', 'hour', 'minute', 'second', 'microsecond']
+        for comp in components:
+            df[col + ' ' + comp + ' sin'] = np.sin(2 * math.pi * df[col].dt.__getattribute__(comp) / df[col].dt.__getattribute__(comp).max())
+            df[col + ' ' + comp + ' cos'] = np.cos(2 * math.pi * df[col].dt.__getattribute__(comp) / df[col].dt.__getattribute__(comp).max())
+
+    # Remove the original date columns
+    df.drop(date_cols, axis=1, inplace=True)
+    
+    # Remove columns with NaN values
+    df.dropna(axis=1, how='all', inplace=True)
+
     return df
         
     

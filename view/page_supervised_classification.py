@@ -2,6 +2,7 @@ import dash_bootstrap_components as dbc
 from dash import dcc
 from dash import Input, Output, html, State, no_update, ctx
 import dash
+from dash import dash_table
 
 # import app
 from view.app import app
@@ -71,7 +72,14 @@ def create_data_supervised_panel():
                     ),
                     dbc.CardBody(
                         [
-                            create_prediction_plot(),
+                            dbc.Row(
+                                [
+                                    create_prediction_plot(),
+                                    create_feature_importance_table(),
+                                ],
+                                align = "start",
+                                justify = 'center',
+                            ),
                         ],
                     ),
                 ],
@@ -138,7 +146,52 @@ def create_prediction_plot():
             )
         ),
         
-        width=12
+        width=8
+    )
+            
+
+    return layout
+
+def create_feature_importance_table():
+
+    layout = dbc.Col( 
+        dbc.Card(
+            dbc.CardBody(
+                [
+                    dcc.Loading(
+                        id="loading_classification_feature_importance",
+                        type="default",
+                        children=[
+                            dash_table.DataTable(
+                                id='datatable_classification_feature_importance',
+                                columns= [{"name": "Feature", "id": "Feature"}, {"name": "Importance", "id": "Importance"}],
+                                filter_action='native',
+                                page_size=14,
+                                fill_width=True,
+                                sort_action="native",
+                                style_header={
+                                    'backgroundColor': 'rgb(30, 30, 30)',
+                                    'color': 'white',
+                                    'fontWeight': 'bold',
+                                    'fontSize' : "13pt"
+                                },
+                                fixed_rows={'headers': True},
+                                style_cell={'textAlign': 'left', 'color': 'black'},
+                                style_data={
+                                    'whiteSpace': 'normal',
+                                    'height': 'auto',
+                                    'fontSize' : "13pt",
+                                    'minWidth': 50
+                                },
+                            ),
+                        ]
+                    )
+                    
+                ]
+            )
+        ),
+        
+        width=4
     )
             
 
@@ -202,11 +255,13 @@ def create_container_for_parameter():
                                 id='slider_classification_train_test_split',
                             ),
                             
-                            html.Img(id='img_classification_time_series_crossvalidation', src="/assets/img/tooltip.png", className='tooltip_img'),
-                            dbc.Tooltip(
-                                "If checked it keeps the order of the datapoints, otherwise it shuffles the dataset.",
-                                target='img_classification_time_series_crossvalidation', 
+                            dcc.Link(
+                                html.Img(src='/assets/img/link.png', id='img_classification_time_series_cv', className='tooltip_img'),
+                                id='link_classification_time_series_cv',
+                                href=TS_CROSS_VALIDATION_LINKS[0],
+                                target='_blank',
                             ),
+                            dbc.Tooltip(TS_CROSS_VALIDATION_DESCRIPTION[0], target='img_classification_time_series_cv', id='tooltip_classification_time_series_cv'),
                             
                             dcc.Checklist(
                                 id='checklist_classification_time_series_crossvalidation',
@@ -238,7 +293,16 @@ def create_container_for_parameter():
                     ),
                     
                     dbc.Card([
-                        dbc.CardHeader("Model:", className='card_subheader'),
+                        dbc.CardHeader([
+                            "Model:",
+                            dcc.Link(
+                                html.Img(src='/assets/img/link.png', id='img_classification_strategy', className='tooltip_img'),
+                                id='link_classification_strategy',
+                                href=CLASSIFIER_LINKS[0],
+                                target='_blank',
+                            ),
+                            dbc.Tooltip(CLASSIFIER_DESCRIPTION[0], target='img_classification_strategy', id='tooltip_classification_strategy'),
+                        ], className='card_subheader'),
                         dbc.CardBody([
                             dcc.Dropdown(
                                 id='dropdown_classification_model',
@@ -363,6 +427,18 @@ def add_container_for_look_back(id_container, id_slider):
                 min=1,
                 max=20,
                 step=1,
+                marks={
+                    1:"1",
+                    3:"3",
+                    5:"5",
+                    7:"7",
+                    9:"9",
+                    11:"11",
+                    13:"13",
+                    15:"15",
+                    17:"17",
+                    19:"19",
+                 },
                 value=5,
                 tooltip={"placement": "bottom", "always_visible": False}
             ),
@@ -385,7 +461,7 @@ def create_container_for_knn():
             add_container_for_algorithm('container_classification_knn_algorithm', 'dropdown_classification_knn_algorithm'),
             add_container_for_weights('container_classification_knn_weights', 'dropdown_classification_knn_weights'),
         ],
-        style={'display': 'block'},
+        style={'display': 'none'},
         id='container_classification_knn'
     )
     
@@ -502,17 +578,14 @@ def add_container_for_n_estimators(id_container, id_slider):
         dbc.CardBody([
             dcc.Slider(
                 id=id_slider,
-                min=50,
-                max=300,
                 step=10,
                 value=50,
                 marks={
+                    10:"10",
                     50:"50",
                     100:"100",
                     150:"150",
                     200:"200",
-                    250:"250",
-                    300:"300",
                 },
                 tooltip={"placement": "bottom", "always_visible": False}
             ),

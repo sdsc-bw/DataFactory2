@@ -120,34 +120,52 @@ def get_dtypes(df):
     dtypes = dtypes.astype(str).replace('object', 'categorical')
     return dtypes
 
-def compute_plot(df, col_index, cols, value_min, value_max, reset_index=False):    
+def compute_plot(df, col_index, cols, value_min=None, value_max=None, reset_index=False, target=None, target_class=None):    
+    if not target is None and not target is None:
+        df = df[df[target] == target_class]
+       
     if col_index is None:
-        sel = df.index.map(lambda x: x >= value_min and x <= value_max)
+        if value_min is None or value_max is None:
+            sel = df.index
+        else:
+            sel = df.index.map(lambda x: x >= value_min and x <= value_max)
     else:
-        sel = df[col_index].map(lambda x: x >= value_min and x <= value_max)
+        if value_min is None or value_max is None:
+            sel = df[col_index]
+        else:
+            sel = df[col_index].map(lambda x: x >= value_min and x <= value_max)
+            
     if reset_index:
         df = df.loc[sel, cols].reset_index()
     else:
         df = df.loc[sel, cols]
+    
     return df
     
 
-def analyse_correlation(df):
+def analyse_correlation(df, cols, target=None, target_class=None):
+    if not target is None and not target is None:
+        df = df[df[target] == target_class]
+    
     # only use numeric data  
-    cols = df.select_dtypes(include=NUMERICS).columns
     df = df[cols]
     
     corr = df.corr()
     
     return corr
 
-def compute_scatter(df, col, value_min, value_max):
-    # only use numeric data  
-    cols = df.select_dtypes(include=NUMERICS).columns
-    df = df[cols]
+def compute_scatter(df, col, value_min=None, value_max=None, target=None, target_class='ALL'):
+    if target_class != 'ALL':
+        df = df[df[target] == target_class]
     
     # filter data
+    if value_min is None:
+        value_min = df.index.min()
+    if value_max is None:
+        value_max = df.index.max()
+        
     sel = table_data.DF_RAW[col].map(lambda x: x >= value_min and x <= value_max)
     df = table_data.DF_RAW.loc[sel, table_data.DF_RAW.columns].reset_index()
+
     return df
     
