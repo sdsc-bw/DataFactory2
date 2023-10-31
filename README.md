@@ -19,7 +19,9 @@ if __name__ == "__main__":
 ### Load Data
 After starting the dashboard, the first step is to load your csv-data into the dashboard. Select in the menu "Data Loading". Browse for your data or add it with drag&drop. Then select the seperator of the data. You can also add an additional index column if you select 'Auto' as index, it will start at 0 and will number each datapoint.
 
-TODO add demo
+
+https://github.com/sdsc-bw/DataFactory2/assets/36307634/f64b2dd6-5c61-45f5-9fba-390b96a55278
+
 
 
 ### Get an Overview over the Data
