@@ -4,7 +4,7 @@ The DataFactory is a data mining tool for preprocessing and analysing data. It i
 
 
 ## Tutorial
-In the following section we give a small introdution on the usage and capabilities of the Datafactory. Bside that in the dashboard you can find tool tips with this symbol ![](./assets/img/tooltip.png | width=30) containing additional information about the feature. We also used functions of other packages. You can click the symbol ![](./assets/img/link.png | width=30) in order to be directed to the documenation of this function.
+In the following section we give a small introdution on the usage and capabilities of the Datafactory. Bside that in the dashboard you can find tool tips with this symbol ![](./assets/img/tooltip.png | width=30) <img src="https://github.com/sdsc-bw/DataFactory2/blob/main/assets/img/tooltip.png" width="30"> containing additional information about the feature. We also used functions of other packages. You can click the symbol ![](./assets/img/link.png | width=30) in order to be directed to the documenation of this function.
 
 DISCLAIMER: The tool is WIP and a few parts of the UI might not look the same as in the demo videos.
 
