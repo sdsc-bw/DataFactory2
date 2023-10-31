@@ -70,8 +70,6 @@ TODO add demo
 ### Analyse the Data
 After creating datasets you can select between "Supervised Classification" and "Supervised Regression" to perform your analysis. There you can select between different baselines and simple machine learning algorithms which can be applied on your selected dataset.
 
-In the middle you can select beside the dataset, different algorithms, their parameters and an evaluation metric. At the end you can also name the test run (which will be displayed in the summary).
-
-At the top of the tab you can (later) see a summary the evaluation. This will be the average of the cross validation scores.
+In the middle you can select beside the dataset, different algorithms, their parameters and an evaluation metric. At the end you can also name the test run (which will be displayed in the summary). You can also select the train-test split for the cross validation (the number of splits is computed accoridingly). If you are working with time series check the box "Use time series cross validation". This will ensure that the order of samples will be maintained. Press "Show" to start the cross validation training. The results are displayed on the left. Then press "Save" to compute the average score of the cross validation in the summary at the top. At the bottom, you can find a plot with the prediction of the model and the original target values. Beside that, you can find the feature importance derived from the model (not available for every model).
 
 TODO add demo
