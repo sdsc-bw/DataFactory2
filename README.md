@@ -31,7 +31,9 @@ The table shows general statistics of the given features like mean, min, max, ..
 
 You can use the different types of plots (line plot, histogram, violin distribution, correlation map and scattter plot) to examine the features and gain knowledge about them. If your data contains a class feature you can filter the data for a specific class (feature value) to only show data points that belong to this class.
 
-TODO add demo
+
+https://github.com/sdsc-bw/DataFactory2/assets/36307634/55798016-0028-4294-9d9a-7d9ca031b2ce
+
 
 
 ### Clean Data
@@ -43,7 +45,9 @@ There you can see how many numeric and categorical features currently exist in t
 
 You can only continue if you removed/converted all categorical features.
 
-TODO add demo
+
+https://github.com/sdsc-bw/DataFactory2/assets/36307634/202d6807-44d3-462e-a0dc-b0630226571a
+
 
 #### Processs Missing Values
 You can fill missing values in the "Missing Values" tab. 
@@ -51,13 +55,17 @@ There you can see a plot showing the number and position of the missing values f
 
 You can only continue if you removed/filled all missing values.
 
-TODO add demo
+
+https://github.com/sdsc-bw/DataFactory2/assets/36307634/712cc122-1395-4134-92cf-daeaa3f18bc6
+
 
 #### Detect Outlier
 You can detect an remove outliers in the "Outlier Detection" tab.
 At the top you can see the violin distribution of each feature. Below you can select different outlier detection methods. Select the parameters and press "Show" to show the detected outliers (red dots). in the table below you can see a list of the outliers. You can deselect to keep the datapoints in the dataset. Then press "Remove" to delete all selected outliers from the dataset.
 
-TODO add demo
+
+https://github.com/sdsc-bw/DataFactory2/assets/36307634/e517a14e-a1a0-46ac-bcb4-5a93555537e5
+
 
 ### Create a Dataset (with Transformations)
 Before you can start with the analysis you need to create a dataset in the "Transformation" tab. Therefor, press + below the feature table. Then you can name and create your new dataset. It will consist of the current features of your cleaned dataset. You can plot the features of your dataset using different plots (selected by the dropdown menu) and you can delete the features from the dataset by pressing the cross in the feature table. You can also define the index range that should be used in the analysis by using the range slider below the plot.
@@ -67,11 +75,15 @@ After creating the dataset you can either apply some transformations on the feat
 You can create multiple datasets and switch between them using the dropdown menu beside the + symbol. You can also delete datasets.
 The idea of the datasets is that you can create multiple datasets with different transformations and feature sets and later compare them in the analysis.
 
-TODO add demo
+
+https://github.com/sdsc-bw/DataFactory2/assets/36307634/3b771b4f-e02b-4551-8329-d04e3bd167f6
+
 
 ### Analyse the Data
 After creating datasets you can select between "Supervised Classification" and "Supervised Regression" to perform your analysis. There you can select between different baselines and simple machine learning algorithms which can be applied on your selected dataset.
 
 In the middle you can select beside the dataset, different algorithms, their parameters and an evaluation metric. At the end you can also name the test run (which will be displayed in the summary). You can also select the train-test split for the cross validation (the number of splits is computed accoridingly). If you are working with time series check the box "Use time series cross validation". This will ensure that the order of samples will be maintained. Press "Show" to start the cross validation training. The results are displayed on the left. Then press "Save" to compute the average score of the cross validation in the summary at the top. At the bottom, you can find a plot with the prediction of the model and the original target values. Beside that, you can find the feature importance derived from the model (not available for every model).
 
-TODO add demo
+
+https://github.com/sdsc-bw/DataFactory2/assets/36307634/3c93aac8-e33e-42b7-9a80-7e9ff6a0169a
+
