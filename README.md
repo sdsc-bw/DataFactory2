@@ -85,5 +85,5 @@ After creating datasets you can select between "Supervised Classification" and "
 In the middle you can select beside the dataset, different algorithms, their parameters and an evaluation metric. At the end you can also name the test run (which will be displayed in the summary). You can also select the train-test split for the cross validation (the number of splits is computed accoridingly). If you are working with time series check the box "Use time series cross validation". This will ensure that the order of samples will be maintained. Press "Show" to start the cross validation training. The results are displayed on the left. Then press "Save" to compute the average score of the cross validation in the summary at the top. At the bottom, you can find a plot with the prediction of the model and the original target values. Beside that, you can find the feature importance derived from the model (not available for every model).
 
 
-https://github.com/sdsc-bw/DataFactory2/assets/36307634/3c93aac8-e33e-42b7-9a80-7e9ff6a0169a
+
 
